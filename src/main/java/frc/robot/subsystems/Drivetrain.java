@@ -23,7 +23,7 @@ import frc.robot.Constants;
 
 public class Drivetrain extends SubsystemBase {
   public static AHRS Gyro = new AHRS(Port.kMXP);
-  public static final double MAX_ROBOT_SPEED = 0;
+  public static final double MAX_ROBOT_SPEED = Constants.OperatorConstants.maxSpeed;
   public static PIDController FLPID = new PIDController(0.05, 0.1, 0.001);
   public static PIDController FRPID = new PIDController(0.05, 0.1, 0.001);
   public static PIDController BLPID = new PIDController(0.05, 0.1, 0.001);
@@ -82,15 +82,18 @@ SwerveModuleState backRight = moduleStates[3];
     frontRight = moduleStates[1];
     backLeft = moduleStates[2];
     backRight = moduleStates[3];
-    var frontLeftOptimized = SwerveModuleState.optimize(frontLeft, getEncoderValue(FLEncoder));
-    var frontRightOptimized = SwerveModuleState.optimize(frontRight, getEncoderValue(FREncoder));
-    var backLeftOptimized = SwerveModuleState.optimize(backLeft, getEncoderValue(BLEncoder));
-    var backRIghtOptimized = SwerveModuleState.optimize(backRight, getEncoderValue(BREncoder));
-
+    frontLeft = SwerveModuleState.optimize(frontLeft, getEncoderValue(FLEncoder));
+    frontRight = SwerveModuleState.optimize(frontRight, getEncoderValue(FREncoder));
+    backLeft = SwerveModuleState.optimize(backLeft, getEncoderValue(BLEncoder));
+    backRight = SwerveModuleState.optimize(backRight, getEncoderValue(BREncoder));
+    setState(frontLeft, FLDriveMotor, FLSteerMotor, FLPID, FLEncoder);
+    setState(frontRight, FRDriveMotor, FRSteerMotor, FRPID, FREncoder);
+    setState(backLeft, BLDriveMotor, BLSteerMotor, BLPID, BLEncoder);
+    setState(backRight, BRDriveMotor, BRSteerMotor, BRPID, BREncoder);
   }
 
   public Rotation2d getEncoderValue(Encoder encoder) {
-    return Rotation2d.fromDegrees((encoder.getDistance() * 1.12)/360);
+    return Rotation2d.fromDegrees(encoder.getDistance()/360 * (1/1.2) * 2 * Math.PI);
   }
 
   public void driveWithMisery(double xSpeed, double ySpeed, double rad) {

@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.util.Units;
+
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
  * constants. This class should not be used for any other purpose. All constants should be declared
@@ -15,5 +17,20 @@ package frc.robot;
 public final class Constants {
   public static class OperatorConstants {
     public static final int kDriverControllerPort = 0;
+    public static final int FRONT_LEFT_MODULE_DRIVE_MOTOR = 1; 
+        public static final int FRONT_LEFT_MODULE_STEER_MOTOR = 5; 
+        public static final int BACK_LEFT_MODULE_DRIVE_MOTOR = 3; 
+        public static final int BACK_LEFT_MODULE_STEER_MOTOR = 7; 
+        public static final int FRONT_RIGHT_MODULE_DRIVE_MOTOR = 2; 
+        public static final int FRONT_RIGHT_MODULE_STEER_MOTOR = 6; 
+        public static final int BACK_RIGHT_MODULE_DRIVE_MOTOR = 4; 
+        public static final int BACK_RIGHT_MODULE_STEER_MOTOR = 8; 
+        public static final int[] FRONT_LEFT_MODULE_STEER_ENCODER = {4,5}; 
+        public static final int[] FRONT_RIGHT_MODULE_STEER_ENCODER = {0,1}; 
+        public static final int[] BACK_LEFT_MODULE_STEER_ENCODER = {6,7}; 
+        public static final int[] BACK_RIGHT_MODULE_STEER_ENCODER = {2,3}; 
+        public static final double driveSpeedScale = 10;
+        public static final double maxSpeed = 10;
+        public static final double rotationSpeedScale = maxSpeed/Math.hypot(Units.inchesToMeters(14.5)/2, Units.inchesToMeters(15.5)/2);
   }
 }
