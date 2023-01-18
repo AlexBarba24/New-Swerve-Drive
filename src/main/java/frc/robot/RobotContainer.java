@@ -4,7 +4,6 @@
 
 package frc.robot;
 
-import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.DrivingCommand;
 import frc.robot.subsystems.Drivetrain;
 import edu.wpi.first.wpilibj.XboxController;
@@ -22,7 +21,7 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   Drivetrain drivetrain = new Drivetrain();
   // Replace with CommandPS4Controller or CommandJoystick if needed
-  XboxController driveController = new XboxController(0);
+  public static XboxController driveController = new XboxController(0);
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     // Configure the trigger bindings
@@ -44,6 +43,7 @@ public class RobotContainer {
 
     // Schedule `exampleMethodCommand` when the Xbox controller's B button is pressed,
     // cancelling on release.
+    
   }
 
   /**

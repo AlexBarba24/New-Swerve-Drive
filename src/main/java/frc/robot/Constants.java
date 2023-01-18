@@ -29,8 +29,18 @@ public final class Constants {
         public static final int[] FRONT_RIGHT_MODULE_STEER_ENCODER = {0,1}; 
         public static final int[] BACK_LEFT_MODULE_STEER_ENCODER = {6,7}; 
         public static final int[] BACK_RIGHT_MODULE_STEER_ENCODER = {2,3}; 
-        public static final double driveSpeedScale = 10;
+        public static final double driveSpeedScale = 0.3; //Speed scale from 0 to 1
         public static final double maxSpeed = 10;
         public static final double rotationSpeedScale = maxSpeed/Math.hypot(Units.inchesToMeters(14.5)/2, Units.inchesToMeters(15.5)/2);
+        public static final double[] FRPID = {0.03, 0, 0.0};
+        public static final double[] FLPID = {0.03, 0, 0.0};
+        public static final double[] BRPID = {0.03, 0, 0.0};
+        public static final double[] BLPID = {0.03, 0, 0.0};
+        public static final double FLSPeedScale = 1;
+        public static final double FRSPeedScale = 1;
+        public static final double BLSPeedScale = 1;
+        public static final double BRSPeedScale = 1;
+
+
   }
 }
