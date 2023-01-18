@@ -9,6 +9,7 @@ import java.util.function.DoubleSupplier;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants;
 import frc.robot.RobotContainer;
+import frc.robot.subsystems.AprilTagReader;
 import frc.robot.subsystems.Drivetrain;
 
 public class DrivingCommand extends CommandBase {
@@ -40,26 +41,24 @@ public class DrivingCommand extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if(!(RobotContainer.driveController.getXButton() || RobotContainer.driveController.getYButton())){
+    double autoAim;
+    if(RobotContainer.driveController.getYButton())
+      autoAim = AprilTagReader.aim();
+    else
+      autoAim = 0;
+
+    if(!(RobotContainer.driveController.getXButton())){
       if(!(myJoyX.getAsDouble() > -0.5 && myJoyX.getAsDouble() < 0.5 && myJoyY.getAsDouble() > -0.5 && myJoyY.getAsDouble() < 0.5 && myJoyX2.getAsDouble() > -0.5 && myJoyX2.getAsDouble() < 0.5)) {
         double xSpeed = Constants.OperatorConstants.driveSpeedScale * myJoyX.getAsDouble() * Constants.OperatorConstants.maxSpeed;
         double ySpeed = Constants.OperatorConstants.driveSpeedScale * myJoyY.getAsDouble() * Constants.OperatorConstants.maxSpeed;
         double radSpeed = Constants.OperatorConstants.rotationSpeedScale * myJoyX2.getAsDouble() * Constants.OperatorConstants.driveSpeedScale;
-        myDrivetrain.driveWithMisery(ySpeed, xSpeed, radSpeed);
+        myDrivetrain.driveWithMisery(ySpeed, xSpeed, radSpeed-autoAim);
       } else {
         // myDrivetrain.zeroMotors();
-        myDrivetrain.driveWithMisery(0, 0, 0);
+        myDrivetrain.driveWithMisery(0, 0, 0-autoAim);
       }    
-    }else if(RobotContainer.driveController.getXButton()) {
+    }else {
       myDrivetrain.resetGyro();
-    } else {
-      if(!(myJoyX.getAsDouble() > -0.5 && myJoyX.getAsDouble() < 0.5 && myJoyY.getAsDouble() > -0.5 && myJoyY.getAsDouble() < 0.5 && myJoyX2.getAsDouble() > -0.5 && myJoyX2.getAsDouble() < 0.5)) {
-        double xSpeed = Constants.OperatorConstants.driveSpeedScale * myJoyX.getAsDouble() * Constants.OperatorConstants.maxSpeed;
-        double ySpeed = Constants.OperatorConstants.driveSpeedScale * myJoyY.getAsDouble() * Constants.OperatorConstants.maxSpeed;
-        double radSpeed = Constants.OperatorConstants.rotationSpeedScale * myJoyX2.getAsDouble() * Constants.OperatorConstants.driveSpeedScale;
-        double autoAim = 0;
-        myDrivetrain.driveWithMisery(ySpeed, xSpeed, radSpeed+autoAim);
-      }
     }
   }
   // Called once the command ends or is interrupted.

@@ -36,6 +36,7 @@ public final class Constants {
         public static final double[] FLPID = {0.03, 0, 0.0};
         public static final double[] BRPID = {0.03, 0, 0.0};
         public static final double[] BLPID = {0.03, 0, 0.0};
+        public static final double[] AimPID = {0.215, 0, 0.0};
         public static final double FLSPeedScale = 1;
         public static final double FRSPeedScale = 1;
         public static final double BLSPeedScale = 1;

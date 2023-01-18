@@ -6,16 +6,21 @@ package frc.robot.subsystems;
 
 import org.photonvision.PhotonCamera;
 
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 
 public class AprilTagReader extends SubsystemBase {
-  
-  static PhotonCamera camera = new PhotonCamera("Team811ObjectCamera");
 
-  static private NetworkTable table = NetworkTableInstance.getDefault().getTable("photonvision/Team811ObjectCamera");
+  private static PIDController PID = new PIDController(Constants.OperatorConstants.AimPID[0], Constants.OperatorConstants.AimPID[1], Constants.OperatorConstants.AimPID[2]);
+  
+  static PhotonCamera camera = new PhotonCamera("Microsoft_LifeCam_HD-3000");
+
+  static private NetworkTable table = NetworkTableInstance.getDefault().getTable("photonvision/Microsoft_LifeCam_HD-3000");
   static private NetworkTableEntry tx = table.getEntry("targetYaw");
   static private NetworkTableEntry ty = table.getEntry("targetPitch");
   static private NetworkTableEntry ta = table.getEntry("targetArea");
@@ -55,10 +60,10 @@ public class AprilTagReader extends SubsystemBase {
   }
   /**
    * 
-   * @return
+   * @return a calculates meters per second for the robot to rotate in order to aim at an april tag
    */
   public static double aim(){
-    return 0;
+    return PID.calculate(getX(), 0)*1;
   }
 
   /** Creates a new AprilTagReader. */
@@ -69,7 +74,11 @@ public class AprilTagReader extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    
+    updateSmartDashboard();
 
+  }
+
+  public void updateSmartDashboard(){
+    SmartDashboard.putNumber("TURNING VALUE", aim());
   }
 }
