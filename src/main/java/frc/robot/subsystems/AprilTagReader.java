@@ -63,7 +63,7 @@ public class AprilTagReader extends SubsystemBase {
    * @return a calculates meters per second for the robot to rotate in order to aim at an april tag
    */
   public static double aim(){
-    return PID.calculate(getX(), 0)*1;
+    return PID.calculate(getX(), 0);
   }
 
   /** Creates a new AprilTagReader. */
@@ -77,7 +77,9 @@ public class AprilTagReader extends SubsystemBase {
     updateSmartDashboard();
 
   }
-
+/**Updates the smart dashboard.
+ * 
+ */
   public void updateSmartDashboard(){
     SmartDashboard.putNumber("TURNING VALUE", aim());
   }

@@ -7,8 +7,22 @@ package frc.robot;
 import frc.robot.commands.DrivingCommand;
 import frc.robot.subsystems.AprilTagReader;
 import frc.robot.subsystems.Drivetrain;
+
+import java.io.IOException;
+import java.nio.file.Path;
+
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
+
+import edu.wpi.first.math.trajectory.Trajectory;
+import edu.wpi.first.math.trajectory.TrajectoryUtil;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
@@ -24,6 +38,8 @@ public class RobotContainer {
   AprilTagReader aprilTagReader = new AprilTagReader();
   // Replace with CommandPS4Controller or CommandJoystick if needed
   public static XboxController driveController = new XboxController(0);
+  public static CommandXboxController operatorController = new CommandXboxController(1);
+  // public static Claw claw = new Claw();
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     // Configure the trigger bindings
@@ -43,6 +59,7 @@ public class RobotContainer {
     // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
     drivetrain.setDefaultCommand(new DrivingCommand(drivetrain, ()->driveController.getLeftX(), ()->driveController.getLeftY(), ()->driveController.getRightX()));
 
+    // operatorController.a().toggleOnTrue(new InstantCommand(() -> claw.solenoidToggle()));
     // Schedule `exampleMethodCommand` when the Xbox controller's B button is pressed,
     // cancelling on release.
     
@@ -54,7 +71,25 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
+
+
+    // 2. Generate trajectory
+    String pathURL = "paths/TestAuto.wpilib.json";
+    Trajectory trajectory;
+    try {
+      Path trajectoryPath = Filesystem.getDeployDirectory().toPath().resolve(pathURL);
+      trajectory = TrajectoryUtil.fromPathweaverJson(trajectoryPath);
+   } catch (IOException ex) {
+      DriverStation.reportError("Unable to open trajectory: " + pathURL, ex.getStackTrace());
+      return null;
+   }
+    PIDController xController = new PIDController(Constants.OperatorConstants.kPXController, 0, 0);
+    PIDController yController = new PIDController(Constants.OperatorConstants.kPYController, 0, 0);
+    ProfiledPIDController thetaController = new ProfiledPIDController(Constants.OperatorConstants.kPThetaController, 0, 0, Constants.OperatorConstants.kThetaControllerConstraints);
+    thetaController.enableContinuousInput(-Math.PI, Math.PI);
+    
     // An example command will be run in autonomous
-    return null;
+    Command autoCommand = new SwerveControllerCommand(trajectory, drivetrain::getPose, drivetrain.m_kinematics, xController, yController, thetaController, drivetrain::setModuleStates, drivetrain);
+    return new SequentialCommandGroup(new InstantCommand(() -> drivetrain.resetOdometery(trajectory.getInitialPose())),autoCommand,new InstantCommand(() -> drivetrain.zeroMotors()));
   }
 }
