@@ -4,11 +4,13 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -21,7 +23,7 @@ public class Arm extends SubsystemBase {
   //Gives value between 0 - 360
   public Encoder encoder;
 
-  PIDController einchPID;
+  PIDController winchPID;
   PIDController armPID;
   
   private double armLength = 0;
@@ -34,7 +36,8 @@ public class Arm extends SubsystemBase {
 
   public void turnToPoint(Translation2d setpoint){
     calculate(setpoint);
-
+    winchMotor.set(ControlMode.PercentOutput, winchPID.calculate(winchEncoderReadingMeters(), armLength));
+    pivotMotor.set(ControlMode.PercentOutput, armPID.calculate(encoder.getDistance(), armAngle));
   }
 
   public void calculate(Translation2d setpoint){
@@ -43,7 +46,10 @@ public class Arm extends SubsystemBase {
     double r = Math.sqrt((x*x)+(y*y));
     armLength = r;
     armAngle = (-Math.acos(y/r)+Math.PI) * (180/Math.PI);
-    
+  }
+
+  public double winchEncoderReadingMeters(){
+    return winchMotor.getSelectedSensorPosition()/2048 * Math.PI * Units.inchesToMeters(1.125);
   }
 
 

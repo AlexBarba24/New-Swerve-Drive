@@ -30,10 +30,10 @@ public final class Constants {
         public static final int FRONT_RIGHT_MODULE_STEER_MOTOR = 5; 
         public static final int BACK_RIGHT_MODULE_DRIVE_MOTOR = 3; 
         public static final int BACK_RIGHT_MODULE_STEER_MOTOR = 7; 
-        public static final int[] FRONT_LEFT_MODULE_STEER_ENCODER = {2,3}; 
-        public static final int[] FRONT_RIGHT_MODULE_STEER_ENCODER = {6,7}; 
-        public static final int[] BACK_LEFT_MODULE_STEER_ENCODER = {5,4}; 
-        public static final int[] BACK_RIGHT_MODULE_STEER_ENCODER = {8,9}; 
+        public static final int[] FRONT_LEFT_MODULE_STEER_ENCODER = {4,5}; 
+        public static final int[] FRONT_RIGHT_MODULE_STEER_ENCODER = {0,1}; 
+        public static final int[] BACK_LEFT_MODULE_STEER_ENCODER = {7,6}; 
+        public static final int[] BACK_RIGHT_MODULE_STEER_ENCODER = {2,3}; 
         public static final double driveSpeedScale = 0.3; //Speed scale from 0 to 1
         public static final double maxSpeed = 0.4;
         public static final double rotationSpeedScale = maxSpeed/Math.hypot(Units.inchesToMeters(14.5)/2, Units.inchesToMeters(15.5)/2);
@@ -53,8 +53,8 @@ public final class Constants {
         public static final double kPYController = 1;
         public static final double kPThetaController = 1;
         //public static final Constraints kThetaControllerConstraints = new TrapezoidProfile.Constraints(maxSpeed/Math.hypot(Units.inchesToMeters(14.5)/2, Units.inchesToMeters(15.5)/2)/((Units.inchesToMeters(24)*Math.PI)/2), maxSpeed/Math.hypot(Units.inchesToMeters(14.5)/2, Units.inchesToMeters(15.5)/2)/((Units.inchesToMeters(24)*Math.PI)/2));;
-        public static final double kMaxSpeerMetersPerSecond = 0.4; 
-        public static final double kMaxAccelerationMetersPerSecondSquared = 0.4;
+        public static final double kMaxSpeerMetersPerSecond = 0.04; 
+        public static final double kMaxAccelerationMetersPerSecondSquared = 0.04;
         public static final Constraints kThetaControllerConstraints = new TrapezoidProfile.Constraints(kMaxSpeerMetersPerSecond, kMaxAccelerationMetersPerSecondSquared);
 
   }

@@ -50,7 +50,7 @@ public class DrivingCommand extends CommandBase {
       double ySpeed = 0;
       double radSpeed = 0;
     if(!(RobotContainer.driveController.getXButton())){
-      if(!(myJoyX.getAsDouble() > -0.5 && myJoyX.getAsDouble() < 0.5 && myJoyY.getAsDouble() > -0.5)) {
+      if(!(myJoyX.getAsDouble() > -0.5 && myJoyX.getAsDouble() < 0.5 && myJoyY.getAsDouble() > -0.5 && myJoyY.getAsDouble() < 0.5)) {
         xSpeed = Constants.OperatorConstants.driveSpeedScale * myJoyX.getAsDouble() * Constants.OperatorConstants.maxSpeed;
         ySpeed = Constants.OperatorConstants.driveSpeedScale * myJoyY.getAsDouble() * Constants.OperatorConstants.maxSpeed;
       }

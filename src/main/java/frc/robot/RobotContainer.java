@@ -8,7 +8,9 @@ import frc.robot.commands.DrivingCommand;
 import frc.robot.subsystems.AprilTagReader;
 import frc.robot.subsystems.Drivetrain;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.FileSystem;
 import java.nio.file.Path;
 
 import edu.wpi.first.math.controller.PIDController;
@@ -72,15 +74,14 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
 
-
     // 2. Generate trajectory
-    String pathURL = "paths/TestAuto.wpilib.json";
+    String TrajectoryJSON = "/paths/TestAuto.wpilib.json";
     Trajectory trajectory;
     try {
-      Path trajectoryPath = Filesystem.getDeployDirectory().toPath().resolve(pathURL);
+      Path trajectoryPath = Filesystem.getDeployDirectory().toPath().resolve(TrajectoryJSON);
       trajectory = TrajectoryUtil.fromPathweaverJson(trajectoryPath);
    } catch (IOException ex) {
-      DriverStation.reportError("Unable to open trajectory: " + pathURL, ex.getStackTrace());
+      DriverStation.reportError("Unable to open trajectory: " + TrajectoryJSON + " " + Filesystem.getDeployDirectory().getAbsolutePath(), ex.getStackTrace());
       return null;
    }
     PIDController xController = new PIDController(Constants.OperatorConstants.kPXController, 0, 0);
