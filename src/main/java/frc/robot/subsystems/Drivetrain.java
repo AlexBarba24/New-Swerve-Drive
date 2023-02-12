@@ -30,6 +30,7 @@ import frc.robot.Constants;
  * 
  */
 public class Drivetrain extends SubsystemBase {
+  
   public static AHRS Gyro = new AHRS(Port.kMXP);
   public static final double MAX_ROBOT_SPEED = Constants.OperatorConstants.maxSpeed;
   public static PIDController FLPID = new PIDController(Constants.OperatorConstants.FLPID[0], Constants.OperatorConstants.FLPID[1], Constants.OperatorConstants.FLPID[2]);
@@ -82,6 +83,10 @@ SwerveDriveOdometry odometry = new SwerveDriveOdometry(m_kinematics, getGyroPitc
 
   /** Creates a new Drivetrain. */
   public Drivetrain() {
+    FLDriveMotor.setSelectedSensorPosition(0);
+    FRDriveMotor.setSelectedSensorPosition(0);
+    BLDriveMotor.setSelectedSensorPosition(0);
+    BRDriveMotor.setSelectedSensorPosition(0);
   
     // FRDriveMotor.setInverted(true);
     // BRDriveMotor.setInverted(true);
@@ -149,7 +154,7 @@ SwerveDriveOdometry odometry = new SwerveDriveOdometry(m_kinematics, getGyroPitc
  * @return The distance travelled in meters.
  */
   public double getDistanceTravelled(TalonFX motor){
-    return (motor.getSelectedSensorPosition()/2048.0) * Constants.OperatorConstants.driveWheelRatio;
+    return (motor.getSelectedSensorPosition()/2048.0) * Constants.OperatorConstants.driveWheelRatio * (Math.PI * Units.inchesToMeters(4));
   }
   /**
    * Returns the currently-estimated pose of the robot.
@@ -227,6 +232,7 @@ public Rotation2d getGyroYaw() {
     SmartDashboard.putNumber("DRIVE ENCODER: BL", BLDriveMotor.getSelectedSensorPosition());
     SmartDashboard.putNumber("DRIVE ENCODER: BR", BRDriveMotor.getSelectedSensorPosition());
     SmartDashboard.putData(field);
+    SmartDashboard.putNumber("DISTANCE TRAVELLED", getDistanceTravelled(FLDriveMotor));
     // SmartDashboard.putNumber("RAW ENCODER: FL", FLEncoder.get());
     // SmartDashboard.putNumber("RAW ENCODER: FR", FREncoder.get());
     // SmartDashboard.putNumber("RAW ENCODER: BL", BLEncoder.get());
@@ -258,6 +264,13 @@ public Rotation2d getGyroYaw() {
     FRSteerMotor.set(ControlMode.PercentOutput, FRPID.calculate(getEncoderValue(FREncoder).getDegrees(), 90));
     BLSteerMotor.set(ControlMode.PercentOutput, BLPID.calculate(getEncoderValue(BLEncoder).getDegrees(), 90));
     BRSteerMotor.set(ControlMode.PercentOutput, BRPID.calculate(getEncoderValue(BREncoder).getDegrees(), 90));
+  }
+
+  public void driveForwards(double speed){
+    FLDriveMotor.set(ControlMode.PercentOutput, speed);
+    FRDriveMotor.set(ControlMode.PercentOutput, speed);
+    BLDriveMotor.set(ControlMode.PercentOutput, speed);
+    BRDriveMotor.set(ControlMode.PercentOutput, speed);
   }
 /**Temporary method used for tuning speed.
  * 
