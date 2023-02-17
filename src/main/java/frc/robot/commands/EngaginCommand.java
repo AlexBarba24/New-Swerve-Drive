@@ -26,7 +26,9 @@ public class EngaginCommand extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    drivetrain.driveForwards(0.4);
+    drivetrain.driveForwards(-0.25);
+    if (drivetrain.gate)
+      drivetrain.driveForwards(-0.125);
   }
 
   // Called once the command ends or is interrupted.

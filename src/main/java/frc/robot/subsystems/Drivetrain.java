@@ -293,10 +293,10 @@ public Rotation2d getGyroYaw() {
   public boolean gamin = false;
 
   public boolean isEngaged(){
-    if((Gyro.getPitch() < -5 || Gyro.getPitch() > 5))
+    if((Gyro.getRoll() < -5 || Gyro.getRoll() > 5))
       gate = true;
     if(gate == true)
-      if((Gyro.getPitch() > -5 && Gyro.getPitch() < 5))
+      if((Gyro.getRoll() > -5 && Gyro.getRoll() < 5))
         gamin = true;
     return gamin;
   }

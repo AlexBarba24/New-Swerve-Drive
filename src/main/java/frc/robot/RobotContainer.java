@@ -144,14 +144,16 @@ public class RobotContainer {
   //   // An example command will be run in autonomous
   //   Command autoCommand = new SwerveControllerCommand(trajectory, drivetrain::getPose, drivetrain.m_kinematics, xController, yController, thetaController, drivetrain::setModuleStates, drivetrain);
   //   return new SequentialCommandGroup(new InstantCommand(() -> drivetrain.resetOdometery(trajectory.getInitialPose())),autoCommand,new InstantCommand(() -> drivetrain.zeroMotors()));
-    switch (m_chooser.getSelected()) {
-      case pathPlanner:
-        return autoBuilder.fullAuto(testPath);
-      case engagedAuto:
-        return new EngaginCommand(drivetrain);
-      default:
-        return autoBuilder.fullAuto(testPath);
-    }
+    // switch (m_chooser.getSelected()) {
+    //   case pathPlanner:
+    //     return autoBuilder.fullAuto(testPath);
+    //   case engagedAuto:
+        // return new EngaginCommand(drivetrain);
+      return new FailSafeAuto(drivetrain);
+     
+        // default:
+      //   return autoBuilder.fullAuto(testPath);
+ //   }
  
     // return new FailSafeAuto(drivetrain);
   }

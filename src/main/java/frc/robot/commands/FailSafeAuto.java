@@ -19,12 +19,11 @@ public class FailSafeAuto extends SequentialCommandGroup {
   public FailSafeAuto(Drivetrain drivetrain) {
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
-    addRequirements(drivetrain);
 
-    addCommands(
+    super(
       new ParallelDeadlineGroup(
         new WaitCommand(5), 
-        new InstantCommand(()->drivetrain.driveForwards(.1),drivetrain)
+        new InstantCommand(()->drivetrain.driveForwards(-0.25),drivetrain)
       ),
       new InstantCommand(()->drivetrain.driveForwards(0), drivetrain)
     );
