@@ -53,13 +53,13 @@ public final class Constants {
         public static final double kRamseteB = 2;
         public static final double kRamseteZeta = 0.7;
         public static final double driveWheelRatio = 1/6.67;
-        public static final double kPXController = .001;
-        public static final double kPThetaController = .001;
+        public static final double kPXController = 3;
+        public static final double kPThetaController = 3;
         public static final double[] armPID = {0.01, 0.0005, 0.0};
         public static final double[] winchPID = {5, 0, 0};
         //public static final Constraints kThetaControllerConstraints = new TrapezoidProfile.Constraints(maxSpeed/Math.hypot(Units.inchesToMeters(14.5)/2, Units.inchesToMeters(15.5)/2)/((Units.inchesToMeters(24)*Math.PI)/2), maxSpeed/Math.hypot(Units.inchesToMeters(14.5)/2, Units.inchesToMeters(15.5)/2)/((Units.inchesToMeters(24)*Math.PI)/2));;
         public static final double kMaxSpeerMetersPerSecond = maxSpeed; 
-        public static final double kMaxAccelerationMetersPerSecondSquared = 3;
+        public static final double kMaxAccelerationMetersPerSecondSquared = 1;
         public static final double kMaxAngularSpeedRadPerSecond = (2*2*Math.PI);
         public static final double kMaxAngularAccelerationRadPerSecondSquared = 3;
 

@@ -288,6 +288,24 @@ public Rotation2d getGyroYaw() {
   public void resetOdometery(Pose2d pose) {
     odometry.resetPosition(Gyro.getRotation2d(), modulePositions, pose);
   }
+
+  public boolean gate = false;
+  public boolean gamin = false;
+
+  public boolean isEngaged(){
+    if((Gyro.getPitch() < -5 || Gyro.getPitch() > 5))
+      gate = true;
+    if(gate == true)
+      if((Gyro.getPitch() > -5 && Gyro.getPitch() < 5))
+        gamin = true;
+    return gamin;
+  }
+
+  public void resetEngagement(){
+    gate = false;
+    gamin = false;
+  }
+
 /**Resets the gyro to zero. 
  * 
  */

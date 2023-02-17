@@ -9,7 +9,6 @@ import java.util.function.BooleanSupplier;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.RobotContainer;
 import frc.robot.subsystems.Arm;
 
 public class ArmCommand extends CommandBase {

@@ -4,27 +4,17 @@
 
 package frc.robot.commands;
 
-import java.util.function.BooleanSupplier;
-
-
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.RobotContainer;
 import frc.robot.subsystems.Arm;
 
-public class ArmCommandEpicer extends CommandBase {
-  double angle;
-  double length;
-  boolean retracted;
-  BooleanSupplier isDone;
-  Arm m_Arm;
-  /** Creates a new ArmCommand. */
-  public ArmCommandEpicer(Arm arm, double angle, double length, BooleanSupplier theLean) {
+public class ArmExtendCommand extends CommandBase {
+  public Arm m_arm;
+  /** Creates a new ArmExtendCommand. */
+  public ArmExtendCommand(Arm arm) {
     // Use addRequirements() here to declare subsystem dependencies.
-    this.angle = angle;
-    this.length = length;
-    isDone = theLean;
-    m_Arm = arm;
-    retracted = true;
-    addRequirements(m_Arm);
+    m_arm = arm;
+    addRequirements(m_arm);
   }
 
   // Called when the command is initially scheduled.
@@ -34,26 +24,18 @@ public class ArmCommandEpicer extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    // if(retracted == false){
-    //   if(!m_Arm.extendArm(Units.inchesToMeters(28.5)))
-    //     return;
-    //   else
-    //     retracted = true;
-    // }
-    if(m_Arm.turnToPoint(angle))
-      System.out.println("***************************");
-    m_Arm.extendArm(length);
+    m_arm.extendArmManual();
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    m_Arm.STOP_NOW();
+    m_arm.STOP_NOW();
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return !isDone.getAsBoolean();
+    return !RobotContainer.operatorController.rightTrigger().getAsBoolean();
   }
 }

@@ -5,8 +5,13 @@
 package frc.robot;
 
 import frc.robot.commands.ArmCommandEpicer;
+import frc.robot.commands.ArmExtendCommand;
+import frc.robot.commands.ArmExtendCommandDANGER;
+import frc.robot.commands.ArmJoystickCommand;
 import frc.robot.commands.ArmRetractCommand;
 import frc.robot.commands.DrivingCommand;
+import frc.robot.commands.EngaginCommand;
+import frc.robot.commands.FailSafeAuto;
 import frc.robot.subsystems.AprilTagReader;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Claw;
@@ -24,6 +29,8 @@ import com.pathplanner.lib.auto.SwerveAutoBuilder;
 
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
@@ -63,11 +70,15 @@ public class RobotContainer {
   private void configureBindings() {
     // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
     drivetrain.setDefaultCommand(new DrivingCommand(drivetrain, ()->driveController.getLeftX(), ()->driveController.getLeftY(), ()->driveController.getRightX()));
-    // arm.setDefaultCommand(new ArmCommand(arm));
+    arm.setDefaultCommand(new ArmJoystickCommand(arm, ()->operatorController.getLeftY()));
 
+
+    // arm.setDefaultCommand(new ArmCommand(arm));
+    
     operatorController.a().toggleOnTrue(new InstantCommand(() -> claw.solenoidToggle()));
-    operatorController.b().toggleOnTrue(new ArmCommandEpicer(arm, 115.0, 1.5 , ()->operatorController.b().getAsBoolean()));
-    operatorController.x().toggleOnTrue(new ArmRetractCommand(arm));
+    operatorController.rightTrigger().toggleOnTrue(new ArmExtendCommand(arm));
+    operatorController.leftTrigger().toggleOnTrue(new ArmRetractCommand(arm));
+    operatorController.x().toggleOnTrue(new ArmExtendCommandDANGER(arm));
     operatorController.y().toggleOnTrue(new ArmCommandEpicer(arm, 0, Units.inchesToMeters(28.5), ()->operatorController.y().getAsBoolean()));
     
     //Max arm length: .967 meters
@@ -85,6 +96,16 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
+
+    final String engagedAuto = "Engage in autonomous";
+    final String pathPlanner = "Path following auto";
+
+    SendableChooser<String> m_chooser = new SendableChooser<>();
+
+    SmartDashboard.putData("Auto Chooser", m_chooser);
+
+    m_chooser.addOption(engagedAuto, engagedAuto);
+    m_chooser.addOption(pathPlanner, pathPlanner);
 
     PathPlannerTrajectory testPath = PathPlanner.loadPath("New Path", new PathConstraints(Constants.OperatorConstants.kMaxSpeerMetersPerSecond, Constants.OperatorConstants.kMaxAccelerationMetersPerSecondSquared), true);
   
@@ -123,7 +144,15 @@ public class RobotContainer {
   //   // An example command will be run in autonomous
   //   Command autoCommand = new SwerveControllerCommand(trajectory, drivetrain::getPose, drivetrain.m_kinematics, xController, yController, thetaController, drivetrain::setModuleStates, drivetrain);
   //   return new SequentialCommandGroup(new InstantCommand(() -> drivetrain.resetOdometery(trajectory.getInitialPose())),autoCommand,new InstantCommand(() -> drivetrain.zeroMotors()));
-    return autoBuilder.fullAuto(testPath);
+    switch (m_chooser.getSelected()) {
+      case pathPlanner:
+        return autoBuilder.fullAuto(testPath);
+      case engagedAuto:
+        return new EngaginCommand(drivetrain);
+      default:
+        return autoBuilder.fullAuto(testPath);
+    }
+ 
     // return new FailSafeAuto(drivetrain);
   }
 }

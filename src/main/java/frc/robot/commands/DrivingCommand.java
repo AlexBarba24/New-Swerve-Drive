@@ -17,7 +17,7 @@ public class DrivingCommand extends CommandBase {
   DoubleSupplier myJoyX;
   DoubleSupplier myJoyY;
   DoubleSupplier myJoyX2;
-
+  double slowMo = 1;
   /**
    * Command to swerve drive.
    * 
@@ -46,16 +46,24 @@ public class DrivingCommand extends CommandBase {
       autoAim = AprilTagReader.aim();
     else
       autoAim = 0;
-      double xSpeed = 0;
-      double ySpeed = 0;
-      double radSpeed = 0;
+    double xSpeed = 0;
+    double ySpeed = 0;
+    double radSpeed = 0;
+    
+    if(RobotContainer.driveController.getAButton()){
+      slowMo = .8;
+    }
+    if(RobotContainer.driveController.getBButton()){
+      slowMo = 0.3;
+    }
+      
     if(!(RobotContainer.driveController.getXButton())){
       if(!(myJoyX.getAsDouble() > -0.5 && myJoyX.getAsDouble() < 0.5 && myJoyY.getAsDouble() > -0.5 && myJoyY.getAsDouble() < 0.5)) {
-        xSpeed = Constants.OperatorConstants.driveSpeedScale * myJoyX.getAsDouble() * Constants.OperatorConstants.maxSpeed;
-        ySpeed = Constants.OperatorConstants.driveSpeedScale * myJoyY.getAsDouble() * Constants.OperatorConstants.maxSpeed;
+        xSpeed = Constants.OperatorConstants.driveSpeedScale * myJoyX.getAsDouble() * Constants.OperatorConstants.maxSpeed * slowMo;
+        ySpeed = Constants.OperatorConstants.driveSpeedScale * myJoyY.getAsDouble() * Constants.OperatorConstants.maxSpeed * slowMo;
       }
       if(!(myJoyX2.getAsDouble() > -0.5 && myJoyX2.getAsDouble() < 0.5)){
-        radSpeed = Constants.OperatorConstants.rotationSpeedScale * myJoyX2.getAsDouble() * Constants.OperatorConstants.driveSpeedScale;
+        radSpeed = Constants.OperatorConstants.rotationSpeedScale * myJoyX2.getAsDouble() * Constants.OperatorConstants.driveSpeedScale * slowMo;
       }
       myDrivetrain.driveWithMisery(ySpeed, xSpeed, radSpeed-autoAim);
     }else {

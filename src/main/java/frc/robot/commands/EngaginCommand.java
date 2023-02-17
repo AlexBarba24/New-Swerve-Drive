@@ -5,37 +5,39 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.RobotContainer;
-import frc.robot.subsystems.Arm;
+import frc.robot.subsystems.Drivetrain;
 
-public class ArmRetractCommand extends CommandBase {
-  public Arm m_arm;
-  /** Creates a new ArmRetractCommand. */
-  public ArmRetractCommand(Arm arm) {
+public class EngaginCommand extends CommandBase {
+  Drivetrain drivetrain;
+  /** Creates a new EngaginCommand. */
+  public EngaginCommand(Drivetrain drivetrain) {
+    this.drivetrain = drivetrain;
+
+    addRequirements(drivetrain);
     // Use addRequirements() here to declare subsystem dependencies.
-    m_arm = arm;
-    addRequirements(m_arm);
   }
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {}
+  public void initialize() {
+    drivetrain.resetEngagement();
+  }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    m_arm.retractArmManual();
+    drivetrain.driveForwards(0.4);
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    m_arm.STOP_NOW();
+    drivetrain.driveForwards(0);
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return !RobotContainer.operatorController.leftTrigger().getAsBoolean();
+    return drivetrain.isEngaged();
   }
 }

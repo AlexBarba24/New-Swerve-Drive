@@ -37,7 +37,7 @@ public class Arm extends SubsystemBase {
     winchMotor.setInverted(true);
     winchMotor.setNeutralMode(NeutralMode.Brake);
     pivotMotor.setNeutralMode(NeutralMode.Brake);
-    
+    winchMotor.setSelectedSensorPosition(0);
   }
 
   public boolean retractArm(){
@@ -70,9 +70,28 @@ public class Arm extends SubsystemBase {
     System.out.println(-armPID.calculate(getEncoderValue(), armAngle));
     return (armAngle - 10 <  getEncoderValue() && armAngle + 10 > getEncoderValue());
   }
+ 
+  public void extendArmManual(){
+    if(winchEncoderReadingMeters() < 10)
+      winchMotor.set(ControlMode.PercentOutput, 0.3);
+  }
 
   public void retractArmManual(){
+    if(winchEncoderReadingMeters() > 0.05)
+      winchMotor.set(ControlMode.PercentOutput, -0.3);
+  }
+  public void retractArmManualManual(){
     winchMotor.set(ControlMode.PercentOutput, -0.3);
+  }
+
+  public void armWithMisery(double joyInput){
+    double sign = 0;
+    if(joyInput > 0)
+      sign = 1;
+    else
+      sign = -1;
+    double value = joyInput * joyInput * sign;
+    pivotMotor.set(ControlMode.PercentOutput, value);
   }
 
   public double getEncoderValue(){
@@ -94,7 +113,7 @@ public class Arm extends SubsystemBase {
   }
 
   public double winchEncoderReadingMeters(){
-    return (winchMotor.getSelectedSensorPosition()/2048/49 * Math.PI * Units.inchesToMeters(1.125)) + Units.inchesToMeters(29);
+    return (winchMotor.getSelectedSensorPosition()/2048/49 * Math.PI * Units.inchesToMeters(1.125));
   }
 
 
