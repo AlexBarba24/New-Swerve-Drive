@@ -34,6 +34,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
@@ -146,10 +147,11 @@ public class RobotContainer {
   //   return new SequentialCommandGroup(new InstantCommand(() -> drivetrain.resetOdometery(trajectory.getInitialPose())),autoCommand,new InstantCommand(() -> drivetrain.zeroMotors()));
     // switch (m_chooser.getSelected()) {
     //   case pathPlanner:
-    //     return autoBuilder.fullAuto(testPath);
+        return autoBuilder.fullAuto(testPath);
+        // return new SequentialCommandGroup(autoBuilder.fullAuto(testPath),autoBuilder.fullAuto(testPath),autoBuilder.fullAuto(testPath));
     //   case engagedAuto:
         // return new EngaginCommand(drivetrain);
-      return new FailSafeAuto(drivetrain);
+      // return new FailSafeAuto(drivetrain);
      
         // default:
       //   return autoBuilder.fullAuto(testPath);

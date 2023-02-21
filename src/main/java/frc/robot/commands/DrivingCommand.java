@@ -51,7 +51,7 @@ public class DrivingCommand extends CommandBase {
     double radSpeed = 0;
     
     if(RobotContainer.driveController.getAButton()){
-      slowMo = .8;
+      slowMo = 1;
     }
     if(RobotContainer.driveController.getBButton()){
       slowMo = 0.3;
