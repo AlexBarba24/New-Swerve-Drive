@@ -131,6 +131,7 @@ public class Arm extends SubsystemBase {
     SmartDashboard.putNumber("Arm Angle", getEncoderValue());
     SmartDashboard.putNumber("Target Angle", armAngle);
     SmartDashboard.putNumber("Target Length", armLength);
+    
   }
 
 }

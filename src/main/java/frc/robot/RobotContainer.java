@@ -17,8 +17,12 @@ import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.Drivetrain;
 
-
+import java.io.IOException;
+import java.nio.file.Path;
 import java.util.HashMap;
+import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 import com.pathplanner.lib.PathConstraints;
 import com.pathplanner.lib.PathPlanner;
@@ -26,15 +30,30 @@ import com.pathplanner.lib.PathPlannerTrajectory;
 import com.pathplanner.lib.auto.PIDConstants;
 import com.pathplanner.lib.auto.SwerveAutoBuilder;
 
-
+import edu.wpi.first.math.controller.HolonomicDriveController;
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.trajectory.Trajectory;
+import edu.wpi.first.math.trajectory.TrajectoryConfig;
+import edu.wpi.first.math.trajectory.TrajectoryGenerator;
+import edu.wpi.first.math.trajectory.TrajectoryUtil;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
+import edu.wpi.first.wpilibj2.command.ProfiledPIDCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.Subsystem;
+import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
@@ -53,6 +72,11 @@ public class RobotContainer {
   public static CommandXboxController operatorController = new CommandXboxController(1);
   public static Claw claw = new Claw();
   public static Arm arm = new Arm();
+
+  public void updateSmartDashboard()
+  {
+    SmartDashboard.putData(arm);
+  }
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     // Configure the trigger bindings
@@ -70,18 +94,26 @@ public class RobotContainer {
    */
   private void configureBindings() {
     // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
-    drivetrain.setDefaultCommand(new DrivingCommand(drivetrain, ()->driveController.getLeftX(), ()->driveController.getLeftY(), ()->driveController.getRightX()));
-    arm.setDefaultCommand(new ArmJoystickCommand(arm, ()->operatorController.getLeftY()));
-
+    drivetrain.setDefaultCommand(new DrivingCommand(drivetrain, 
+                                                    ()->driveController.getLeftX(), 
+                                                    ()->driveController.getLeftY(), 
+                                                    ()->driveController.getRightX()));
+    arm.setDefaultCommand(new ArmJoystickCommand(arm,
+                                                ()->operatorController.getLeftY(), 
+                                                ()->operatorController.getRightTriggerAxis(),
+                                                ()->operatorController.getLeftTriggerAxis()));
+    
 
     // arm.setDefaultCommand(new ArmCommand(arm));
     
     operatorController.a().toggleOnTrue(new InstantCommand(() -> claw.solenoidToggle()));
-    operatorController.rightTrigger().toggleOnTrue(new ArmExtendCommand(arm));
-    operatorController.leftTrigger().toggleOnTrue(new ArmRetractCommand(arm));
+    System.out.print("got here");
+    //operatorController.rightTrigger().toggleOnTrue(new ArmExtendCommand(arm));
+    //operatorController.leftTrigger().toggleOnTrue(new ArmRetractCommand(arm));
     operatorController.x().toggleOnTrue(new ArmExtendCommandDANGER(arm));
     operatorController.y().toggleOnTrue(new ArmCommandEpicer(arm, 0, Units.inchesToMeters(28.5), ()->operatorController.y().getAsBoolean()));
     
+
     //Max arm length: .967 meters
     //arm tower is 45 inches from ground
     //6 inches from front bumper
@@ -90,11 +122,12 @@ public class RobotContainer {
     // cancelling on release.
     
   }
-
+      
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
    *
    * @return the command to run in autonomous
+   * @throws IOException
    */
   public Command getAutonomousCommand() {
 
@@ -137,19 +170,32 @@ public class RobotContainer {
   //     DriverStation.reportError("Unable to open trajectory: " + Filesystem.getDeployDirectory().toPath().resolve(TrajectoryJSON) , ex.getStackTrace());
   //     return null;
   //  }
-  //   PIDController xController = new PIDController(Constants.OperatorConstants.kPXController, 0, 0);
-  //   PIDController yController = new PIDController(Constants.OperatorConstants.kPYController, 0, 0);
-  //   ProfiledPIDController thetaController = new ProfiledPIDController(Constants.OperatorConstants.kPThetaController, 0, 0, Constants.OperatorConstants.kThetaControllerConstraints);
+     //PIDController xController = new PIDController(Constants.OperatorConstants.kPXController, 0, 0);
+     //PIDController yController = new PIDController(Constants.OperatorConstants.kPYController, 0, 0);
+    //ProfiledPIDController thetaController = new ProfiledPIDController(Constants.OperatorConstants.kPThetaController, 0, 0, Constants.OperatorConstants.kThetaControllerConstraints);
   //   thetaController.enableContinuousInput(-Math.PI, Math.PI);
     
+     String trajectoryJSON = "paths/TestAuto.wpilib.json";
+     TrajectoryConfig trajectoryConfig = new TrajectoryConfig(Constants.OperatorConstants.kMaxSpeerMetersPerSecond, Constants.OperatorConstants.kMaxAccelerationMetersPerSecondSquared).setKinematics(drivetrain.m_kinematics);
+     // ADD NEW AUTO WAYPOINTS HERE
+     Trajectory trajectory = TrajectoryGenerator.generateTrajectory(List.of(new Pose2d(0, 0, new Rotation2d(0)), new Pose2d(1, 0, new Rotation2d(0))), trajectoryConfig);
+    
+        // try {      // } catch (IOException ex) {
+        //    DriverStation.reportError("Unable to open trajectory: " + trajectoryJSON, ex.getStackTrace());
+        // }
+
+     PIDController xController = new PIDController(Constants.OperatorConstants.kPXController, 0, 0);
+     PIDController yController = new PIDController(Constants.OperatorConstants.kPXController, 0, 0);
+     ProfiledPIDController thetaController = new ProfiledPIDController(Constants.OperatorConstants.kPThetaController, 0, 0, Constants.OperatorConstants.kThetaControllerConstraints);
   //   // An example command will be run in autonomous
-  //   Command autoCommand = new SwerveControllerCommand(trajectory, drivetrain::getPose, drivetrain.m_kinematics, xController, yController, thetaController, drivetrain::setModuleStates, drivetrain);
-  //   return new SequentialCommandGroup(new InstantCommand(() -> drivetrain.resetOdometery(trajectory.getInitialPose())),autoCommand,new InstantCommand(() -> drivetrain.zeroMotors()));
-    // switch (m_chooser.getSelected()) {
-    //   case pathPlanner:
-        return autoBuilder.fullAuto(testPath);
-        // return new SequentialCommandGroup(autoBuilder.fullAuto(testPath),autoBuilder.fullAuto(testPath),autoBuilder.fullAuto(testPath));
-    //   case engagedAuto:
+    // Command autonomousCommand = new SwerveControllerCommand(trajectory, drivetrain::getPose, drivetrain.m_kinematics, xController, yController, thetaController, drivetrain::setModuleStates, drivetrain);
+     Command autoCommand = new SwerveControllerCommand(trajectory, drivetrain::getPose, drivetrain.m_kinematics, xController, yController, thetaController, drivetrain::setModuleStates, drivetrain);
+     return new SequentialCommandGroup(new InstantCommand(() -> drivetrain.resetOdometery(trajectory.getInitialPose())),autoCommand,new InstantCommand(() -> drivetrain.zeroMotors()));
+     //switch (m_chooser.getSelected()) {
+       //case pathPlanner:
+        //return autoBuilder.fullAuto(testPath);
+         //return new SequentialCommandGroup(autoBuilder.fullAuto(testPath),autoBuilder.fullAuto(testPath),autoBuilder.fullAuto(testPath));
+       //case engagedAuto:
         // return new EngaginCommand(drivetrain);
       // return new FailSafeAuto(drivetrain);
      

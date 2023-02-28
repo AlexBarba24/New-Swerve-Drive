@@ -35,7 +35,7 @@ public final class Constants {
         public static final int BACK_RIGHT_MODULE_STEER_MOTOR = 7; 
         public static final int[] FRONT_LEFT_MODULE_STEER_ENCODER = {4,5}; 
         public static final int[] FRONT_RIGHT_MODULE_STEER_ENCODER = {0,1}; 
-        public static final int[] BACK_LEFT_MODULE_STEER_ENCODER = {7,6}; 
+        public static final int[] BACK_LEFT_MODULE_STEER_ENCODER = {6,7}; 
         public static final int[] BACK_RIGHT_MODULE_STEER_ENCODER = {2,3}; 
         public static final int[] PIVOT_MOTOR_ENCODER = {9, 8};
         public static final double driveSpeedScale = 0.3; //Speed scale from 0 to 1

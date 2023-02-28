@@ -233,6 +233,7 @@ public Rotation2d getGyroYaw() {
     SmartDashboard.putNumber("DRIVE ENCODER: BR", BRDriveMotor.getSelectedSensorPosition());
     SmartDashboard.putData(field);
     SmartDashboard.putNumber("DISTANCE TRAVELLED", getDistanceTravelled(FLDriveMotor));
+    
     // SmartDashboard.putNumber("RAW ENCODER: FL", FLEncoder.get());
     // SmartDashboard.putNumber("RAW ENCODER: FR", FREncoder.get());
     // SmartDashboard.putNumber("RAW ENCODER: BL", BLEncoder.get());
