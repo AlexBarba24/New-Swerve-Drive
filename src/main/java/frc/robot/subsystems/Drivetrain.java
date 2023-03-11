@@ -87,7 +87,10 @@ SwerveDriveOdometry odometry = new SwerveDriveOdometry(m_kinematics, getGyroPitc
     FRDriveMotor.setSelectedSensorPosition(0);
     BLDriveMotor.setSelectedSensorPosition(0);
     BRDriveMotor.setSelectedSensorPosition(0);
-  
+    // FLDriveMotor.configOpenloopRamp(2);
+    // FRDriveMotor.configOpenloopRamp(2);
+    // BLDriveMotor.configOpenloopRamp(2);
+    // BRDriveMotor.configOpenloopRamp(2);
     // FRDriveMotor.setInverted(true);
     // BRDriveMotor.setInverted(true);
     FLDriveMotor.setNeutralMode(NeutralMode.Brake);

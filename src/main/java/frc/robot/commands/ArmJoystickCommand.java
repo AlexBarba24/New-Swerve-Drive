@@ -8,9 +8,9 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.RobotContainer;
+// import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+// import edu.wpi.first.wpilibj2.command.button.Trigger;
+// import frc.robot.RobotContainer;
 import frc.robot.subsystems.Arm;
 
 public class ArmJoystickCommand extends CommandBase {
@@ -39,17 +39,15 @@ public class ArmJoystickCommand extends CommandBase {
   @Override
   public void execute() {
     double joyWithDeadband;
-    System.out.print("right trigger read");
+    
     if(joyInput.getAsDouble() < 0.2 && joyInput.getAsDouble() > -0.2)
       joyWithDeadband = 0;
-      
     else
       joyWithDeadband = joyInput.getAsDouble();
-      m_arm.armWithMisery(joyWithDeadband);
+    m_arm.armWithMisery(joyWithDeadband);
       
     if(getRightTriggerAxis.getAsDouble() > 0.2 )
       m_arm.extendArmManual();
-      
     else if(getLeftTriggerAxis.getAsDouble() > 0.2)
       m_arm.retractArmManual();
     else

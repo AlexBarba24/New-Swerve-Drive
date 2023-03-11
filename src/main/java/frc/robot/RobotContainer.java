@@ -8,21 +8,21 @@ import frc.robot.commands.ArmCommandEpicer;
 import frc.robot.commands.ArmExtendCommand;
 import frc.robot.commands.ArmExtendCommandDANGER;
 import frc.robot.commands.ArmJoystickCommand;
-import frc.robot.commands.ArmRetractCommand;
+// import frc.robot.commands.ArmRetractCommand;
 import frc.robot.commands.DrivingCommand;
-import frc.robot.commands.EngaginCommand;
-import frc.robot.commands.FailSafeAuto;
+// import frc.robot.commands.EngaginCommand;
+// import frc.robot.commands.FailSafeAuto;
 import frc.robot.subsystems.AprilTagReader;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.Drivetrain;
 
 import java.io.IOException;
-import java.nio.file.Path;
+// import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
+// import java.util.function.Consumer;
+// import java.util.function.Supplier;
 
 import com.pathplanner.lib.PathConstraints;
 import com.pathplanner.lib.PathPlanner;
@@ -30,29 +30,29 @@ import com.pathplanner.lib.PathPlannerTrajectory;
 import com.pathplanner.lib.auto.PIDConstants;
 import com.pathplanner.lib.auto.SwerveAutoBuilder;
 
-import edu.wpi.first.math.controller.HolonomicDriveController;
+// import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.kinematics.SwerveModuleState;
+// import edu.wpi.first.math.geometry.Translation2d;
+// import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator;
-import edu.wpi.first.math.trajectory.TrajectoryUtil;
+// import edu.wpi.first.math.trajectory.TrajectoryUtil;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Filesystem;
+// import edu.wpi.first.wpilibj.DriverStation;
+// import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
-import edu.wpi.first.wpilibj2.command.ProfiledPIDCommand;
+// import edu.wpi.first.wpilibj2.command.ProfiledPIDCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import edu.wpi.first.wpilibj2.command.Subsystem;
+// import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -111,6 +111,7 @@ public class RobotContainer {
     //operatorController.rightTrigger().toggleOnTrue(new ArmExtendCommand(arm));
     //operatorController.leftTrigger().toggleOnTrue(new ArmRetractCommand(arm));
     operatorController.x().toggleOnTrue(new ArmExtendCommandDANGER(arm));
+    operatorController.b().toggleOnTrue(new ArmExtendCommand(arm));
     operatorController.y().toggleOnTrue(new ArmCommandEpicer(arm, 0, Units.inchesToMeters(28.5), ()->operatorController.y().getAsBoolean()));
     
 
@@ -188,17 +189,11 @@ public class RobotContainer {
                                           new Pose2d(1.25, 0, new Rotation2d(0)),
                                           new Pose2d(1.5, 0, new Rotation2d(0)),
                                           new Pose2d(1.75, 0, new Rotation2d(0)),
-                                          new Pose2d(2, 0, new Rotation2d(0))),
-                                        // TESTING AUTONOMOUS Y WAYPOINTS
-                                        //   new Pose2d(2, 0.25, new Rotation2d(0)),
-                                        //   new Pose2d(2, 0.5, new Rotation2d(0)),
-                                        //   new Pose2d(2, 0.75, new Rotation2d(0)),
-                                        //   new Pose2d(2, 1, new Rotation2d(0)),
-                                        // // TESTING AUTONOMOUS ROTATION
-                                        //   new Pose2d(2, 1, new Rotation2d(Math.PI * 0.5)),
-                                        //   new Pose2d(2, 1, new Rotation2d(Math.PI * 1.0)),
-                                        //   new Pose2d(2, 1, new Rotation2d(Math.PI * 1.5)),
-                                        //   new Pose2d(2, 1, new Rotation2d(Math.PI * 2.0))),
+                                          new Pose2d(2, 0, new Rotation2d(0)),
+                                          new Pose2d(2.25, 0, new Rotation2d(0)),
+                                          new Pose2d(2.5, 0, new Rotation2d(0))),
+                                         // new Pose2d(2.75, 0, new Rotation2d(0)),
+                                         // new Pose2d(3, 0, new Rotation2d(0))),
                                           trajectoryConfig);
     
         // try {      // } catch (IOException ex) {
@@ -211,6 +206,7 @@ public class RobotContainer {
   //   // An example command will be run in autonomous
     // Command autonomousCommand = new SwerveControllerCommand(trajectory, drivetrain::getPose, drivetrain.m_kinematics, xController, yController, thetaController, drivetrain::setModuleStates, drivetrain);
      Command autoCommand = new SwerveControllerCommand(trajectory, drivetrain::getPose, drivetrain.m_kinematics, xController, yController, thetaController, drivetrain::setModuleStates, drivetrain);
+     
      return new SequentialCommandGroup(new InstantCommand(() -> drivetrain.resetOdometery(trajectory.getInitialPose())),autoCommand,new InstantCommand(() -> drivetrain.zeroMotors()));
      //switch (m_chooser.getSelected()) {
        //case pathPlanner:

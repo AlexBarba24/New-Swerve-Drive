@@ -18,6 +18,8 @@ public class DrivingCommand extends CommandBase {
   DoubleSupplier myJoyY;
   DoubleSupplier myJoyX2;
   double slowMo = 1;
+  double prevSpeedX = 0;
+  double prevSpeedY = 0;
   /**
    * Command to swerve drive.
    * 
@@ -49,7 +51,16 @@ public class DrivingCommand extends CommandBase {
     double xSpeed = 0;
     double ySpeed = 0;
     double radSpeed = 0;
-    
+    double xJoyStickInputCurrentValueNegativeOneToOne = myJoyX.getAsDouble();
+    double yJoyStickInputCurrentValueNegativeOneToOne = myJoyY.getAsDouble();
+
+
+    // if((prevSpeedX > 0 && prevSpeedX-xJoyStickInputCurrentValueNegativeOneToOne > 0.01)||(prevSpeedX < 0 && prevSpeedX-xJoyStickInputCurrentValueNegativeOneToOne < -0.01))
+    //   xJoyStickInputCurrentValueNegativeOneToOne = prevSpeedX-0.01;
+    // if((prevSpeedY > 0 && prevSpeedY-yJoyStickInputCurrentValueNegativeOneToOne > 0.01)||(prevSpeedY < 0 && prevSpeedY-yJoyStickInputCurrentValueNegativeOneToOne < -0.01))
+    //   ySpeed = prevSpeedY-0.01;
+    // prevSpeedX = xJoyStickInputCurrentValueNegativeOneToOne;
+    // prevSpeedY = yJoyStickInputCurrentValueNegativeOneToOne;
     if(RobotContainer.driveController.getAButton()){
       slowMo = 1;
     }
@@ -59,13 +70,18 @@ public class DrivingCommand extends CommandBase {
       
     if(!(RobotContainer.driveController.getXButton())){
       if(!(myJoyX.getAsDouble() > -0.5 && myJoyX.getAsDouble() < 0.5 && myJoyY.getAsDouble() > -0.5 && myJoyY.getAsDouble() < 0.5)) {
-        xSpeed = Constants.OperatorConstants.driveSpeedScale * myJoyX.getAsDouble() * Constants.OperatorConstants.maxSpeed * slowMo;
-        ySpeed = Constants.OperatorConstants.driveSpeedScale * myJoyY.getAsDouble() * Constants.OperatorConstants.maxSpeed * slowMo;
+        xSpeed = Constants.OperatorConstants.driveSpeedScale * xJoyStickInputCurrentValueNegativeOneToOne * Constants.OperatorConstants.maxSpeed * slowMo;
+        ySpeed = Constants.OperatorConstants.driveSpeedScale * yJoyStickInputCurrentValueNegativeOneToOne * Constants.OperatorConstants.maxSpeed * slowMo;
       }
       if(!(myJoyX2.getAsDouble() > -0.5 && myJoyX2.getAsDouble() < 0.5)){
         radSpeed = Constants.OperatorConstants.rotationSpeedScale * myJoyX2.getAsDouble() * Constants.OperatorConstants.driveSpeedScale * slowMo;
       }
+
+
+
       myDrivetrain.driveWithMisery(ySpeed, xSpeed, radSpeed-autoAim);
+
+
     }else {
       myDrivetrain.resetGyro();
     }

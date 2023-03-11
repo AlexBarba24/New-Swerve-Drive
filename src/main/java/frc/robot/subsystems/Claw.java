@@ -13,8 +13,8 @@ import frc.robot.Constants;
 
 public class Claw extends SubsystemBase {
 
-  Compressor compressor = new Compressor(Constants.OperatorConstants.COMPRESSOR_ID, PneumaticsModuleType.REVPH);
-  DoubleSolenoid solenoid = new DoubleSolenoid(Constants.OperatorConstants.COMPRESSOR_ID, PneumaticsModuleType.REVPH, Constants.OperatorConstants.SOLENOID_ID_IN, Constants.OperatorConstants.SOLENOID_ID_OUT);
+  Compressor compressor = new Compressor(Constants.OperatorConstants.COMPRESSOR_ID, PneumaticsModuleType.CTREPCM);
+  DoubleSolenoid solenoid = new DoubleSolenoid(Constants.OperatorConstants.COMPRESSOR_ID, PneumaticsModuleType.CTREPCM, Constants.OperatorConstants.SOLENOID_ID_IN, Constants.OperatorConstants.SOLENOID_ID_OUT);
   Boolean extended = false;
   /** Creates a new Claw. */
   public Claw() {

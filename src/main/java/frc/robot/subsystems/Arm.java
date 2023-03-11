@@ -38,6 +38,8 @@ public class Arm extends SubsystemBase {
     winchMotor.setNeutralMode(NeutralMode.Brake);
     pivotMotor.setNeutralMode(NeutralMode.Brake);
     winchMotor.setSelectedSensorPosition(0);
+    //test code
+
   }
 
   public boolean retractArm(){
