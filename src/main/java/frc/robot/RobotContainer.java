@@ -79,6 +79,7 @@ public class RobotContainer {
   }
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
+    arm.STOP_NOW();
     // Configure the trigger bindings
     configureBindings();
   }
@@ -112,7 +113,7 @@ public class RobotContainer {
     //operatorController.leftTrigger().toggleOnTrue(new ArmRetractCommand(arm));
     operatorController.x().toggleOnTrue(new ArmExtendCommandDANGER(arm));
     operatorController.b().toggleOnTrue(new ArmExtendCommand(arm));
-    operatorController.y().toggleOnTrue(new ArmCommandEpicer(arm, 0, Units.inchesToMeters(28.5), ()->operatorController.y().getAsBoolean()));
+    // operatorController.y().toggleOnTrue(new ArmCommandEpicer(arm, 0, Units.inchesToMeters(28.5), ()->operatorController.y().getAsBoolean()));
     
 
     //Max arm length: .967 meters

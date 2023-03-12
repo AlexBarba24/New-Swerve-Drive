@@ -44,7 +44,7 @@ public class DrivingCommand extends CommandBase {
   @Override
   public void execute() {
     double autoAim;
-    if(RobotContainer.driveController.getYButton())
+    if(RobotContainer.driveController.getLeftBumper())
       autoAim = AprilTagReader.aim();
     else
       autoAim = 0;
@@ -63,6 +63,9 @@ public class DrivingCommand extends CommandBase {
     // prevSpeedY = yJoyStickInputCurrentValueNegativeOneToOne;
     if(RobotContainer.driveController.getAButton()){
       slowMo = 1;
+    }
+    if(RobotContainer.driveController.getYButton()){
+      slowMo = 0.6;
     }
     if(RobotContainer.driveController.getBButton()){
       slowMo = 0.3;

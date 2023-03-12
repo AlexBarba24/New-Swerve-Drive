@@ -6,6 +6,7 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
+import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.kauailabs.navx.frc.AHRS;
@@ -26,11 +27,13 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.Instrum;
 /**Drivetrain subsystem.
  * 
  */
 public class Drivetrain extends SubsystemBase {
-  
+  StringBuilder _sb = new StringBuilder();
+
   public static AHRS Gyro = new AHRS(Port.kMXP);
   public static final double MAX_ROBOT_SPEED = Constants.OperatorConstants.maxSpeed;
   public static PIDController FLPID = new PIDController(Constants.OperatorConstants.FLPID[0], Constants.OperatorConstants.FLPID[1], Constants.OperatorConstants.FLPID[2]);
@@ -103,6 +106,38 @@ SwerveDriveOdometry odometry = new SwerveDriveOdometry(m_kinematics, getGyroPitc
     BRDriveMotor.setSelectedSensorPosition(0);
   }
 
+  public void configureFalcon(TalonFX _talon){
+    		/* Factory Default all hardware to prevent unexpected behaviour */
+		_talon.configFactoryDefault();
+		
+		/* Config neutral deadband to be the smallest possible */
+		_talon.configNeutralDeadband(0.001);
+
+		/* Config sensor used for Primary PID [Velocity] */
+        _talon.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, 0, 30);
+											
+
+		/* Config the peak and nominal outputs */
+		_talon.configNominalOutputForward(0, 30);
+		_talon.configNominalOutputReverse(0, 30);
+		_talon.configPeakOutputForward(.5, 30);
+		_talon.configPeakOutputReverse(-.5, 30);
+
+		/* Config the Velocity closed loop gains in slot0 */
+		_talon.config_kF(0, 0.04721901685, 30);
+		_talon.config_kP(0, 0, 30);
+		_talon.config_kI(0, 0, 30);
+		_talon.config_kD(0, 0, 30);
+		/*
+		 * Talon FX does not need sensor phase set for its integrated sensor
+		 * This is because it will always be correct if the selected feedback device is integrated sensor (default value)
+		 * and the user calls getSelectedSensor* to get the sensor's position/velocity.
+		 * 
+		 * https://phoenix-documentation.readthedocs.io/en/latest/ch14_MCSensor.html#sensor-phase
+		 */
+        // _talon.setSensorPhase(true);
+  }
+
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
@@ -129,6 +164,16 @@ SwerveDriveOdometry odometry = new SwerveDriveOdometry(m_kinematics, getGyroPitc
     modulePositions = updateModulePos();
     odometry.update(getGyroPitch(), modulePositions);
     field.setRobotPose(odometry.getPoseMeters());
+    		/* Prepare line to print */
+		_sb.append("\tout:");
+		/* Cast to int to remove decimal places */
+		_sb.append((int) (FLDriveMotor.getMotorOutputPercent() * 100));
+		_sb.append("%");	// Percent
+
+		_sb.append("\tspd:");
+		_sb.append(FLDriveMotor.getSelectedSensorVelocity(0));
+		_sb.append("u"); 	// Native units
+    Instrum.Process(FRDriveMotor, _sb);
     updateSmartDashboard();
   }
 /**Gets the encoder value.
@@ -212,7 +257,7 @@ public Rotation2d getGyroYaw() {
  */
   public void setState(SwerveModuleState state, TalonFX driveMotor, TalonSRX steerMotor, PIDController PID, Encoder encoder, double speedScale) {
     steerMotor.set(ControlMode.PercentOutput, PID.calculate(getEncoderValue(encoder).getDegrees(), roundAngle(state.angle.getDegrees())));
-    driveMotor.set(ControlMode.PercentOutput, (state.speedMetersPerSecond/MAX_ROBOT_SPEED)*speedScale);
+    driveMotor.set(ControlMode.PercentOutput, (state.speedMetersPerSecond/MAX_ROBOT_SPEED)*speedScale*3);
   }
   /**Updates the smart dashboard
    * 

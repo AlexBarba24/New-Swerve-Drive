@@ -8,6 +8,7 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.RobotContainer;
 // import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 // import edu.wpi.first.wpilibj2.command.button.Trigger;
 // import frc.robot.RobotContainer;
@@ -47,9 +48,11 @@ public class ArmJoystickCommand extends CommandBase {
     m_arm.armWithMisery(joyWithDeadband);
       
     if(getRightTriggerAxis.getAsDouble() > 0.2 )
-      m_arm.extendArmManual();
+      m_arm.motionMagicWinch(496000);
     else if(getLeftTriggerAxis.getAsDouble() > 0.2)
-      m_arm.retractArmManual();
+      m_arm.motionMagicWinch(0);
+    else if(RobotContainer.operatorController.y().getAsBoolean())
+      m_arm.extendArmManual();
     else
       m_arm.winchMotor.set(ControlMode.PercentOutput, 0);
   }
