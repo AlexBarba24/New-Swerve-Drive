@@ -6,6 +6,7 @@ package frc.robot.commands;
 
 import java.util.function.DoubleSupplier;
 
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants;
 import frc.robot.RobotContainer;
@@ -17,6 +18,8 @@ public class DrivingCommand extends CommandBase {
   DoubleSupplier myJoyX;
   DoubleSupplier myJoyY;
   DoubleSupplier myJoyX2;
+  // SlewRateLimiter xLimiter = new SlewRateLimiter(.5);
+//  SlewRateLimiter yLimiter = new SlewRateLimiter(.5);
   double slowMo = 1;
   double prevSpeedX = 0;
   double prevSpeedY = 0;
@@ -53,7 +56,7 @@ public class DrivingCommand extends CommandBase {
     double radSpeed = 0;
     double xJoyStickInputCurrentValueNegativeOneToOne = myJoyX.getAsDouble();
     double yJoyStickInputCurrentValueNegativeOneToOne = myJoyY.getAsDouble();
-
+    
 
     // if((prevSpeedX > 0 && prevSpeedX-xJoyStickInputCurrentValueNegativeOneToOne > 0.01)||(prevSpeedX < 0 && prevSpeedX-xJoyStickInputCurrentValueNegativeOneToOne < -0.01))
     //   xJoyStickInputCurrentValueNegativeOneToOne = prevSpeedX-0.01;
@@ -62,21 +65,24 @@ public class DrivingCommand extends CommandBase {
     // prevSpeedX = xJoyStickInputCurrentValueNegativeOneToOne;
     // prevSpeedY = yJoyStickInputCurrentValueNegativeOneToOne;
     if(RobotContainer.driveController.getAButton()){
+      myDrivetrain.shouldRamp = true;
       slowMo = 1;
     }
     if(RobotContainer.driveController.getYButton()){
+      myDrivetrain.shouldRamp = true;
       slowMo = 0.6;
     }
     if(RobotContainer.driveController.getBButton()){
-      slowMo = 0.3;
+      myDrivetrain.shouldRamp = false;
+      slowMo = 0.15;
     }
       
     if(!(RobotContainer.driveController.getXButton())){
-      if(!(myJoyX.getAsDouble() > -0.5 && myJoyX.getAsDouble() < 0.5 && myJoyY.getAsDouble() > -0.5 && myJoyY.getAsDouble() < 0.5)) {
+      if(!(myJoyX.getAsDouble() > -0.2 && myJoyX.getAsDouble() < 0.2 && myJoyY.getAsDouble() > -0.5 && myJoyY.getAsDouble() < 0.5)) {
         xSpeed = Constants.OperatorConstants.driveSpeedScale * xJoyStickInputCurrentValueNegativeOneToOne * Constants.OperatorConstants.maxSpeed * slowMo;
         ySpeed = Constants.OperatorConstants.driveSpeedScale * yJoyStickInputCurrentValueNegativeOneToOne * Constants.OperatorConstants.maxSpeed * slowMo;
       }
-      if(!(myJoyX2.getAsDouble() > -0.5 && myJoyX2.getAsDouble() < 0.5)){
+      if(!(myJoyX2.getAsDouble() > -0.2 && myJoyX2.getAsDouble() < 0.2)){
         radSpeed = Constants.OperatorConstants.rotationSpeedScale * myJoyX2.getAsDouble() * Constants.OperatorConstants.driveSpeedScale * slowMo;
       }
 

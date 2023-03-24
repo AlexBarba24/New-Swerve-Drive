@@ -51,8 +51,8 @@ public class ArmJoystickCommand extends CommandBase {
       m_arm.motionMagicWinch(496000);
     else if(getLeftTriggerAxis.getAsDouble() > 0.2)
       m_arm.motionMagicWinch(0);
-    else if(RobotContainer.operatorController.y().getAsBoolean())
-      m_arm.extendArmManual();
+    // else if(RobotContainer.operatorController.y().getAsBoolean())
+    //   m_arm.extendArmManual();
     else
       m_arm.winchMotor.set(ControlMode.PercentOutput, 0);
   }

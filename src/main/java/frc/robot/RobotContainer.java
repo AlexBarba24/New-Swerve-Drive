@@ -5,11 +5,16 @@
 package frc.robot;
 
 import frc.robot.commands.ArmCommandEpicer;
-import frc.robot.commands.ArmExtendCommand;
+import frc.robot.commands.ArmCommandEpicerEpicer;
+// import frc.robot.commands.ArmCommandEpicer;
+// import frc.robot.commands.ArmExtendCommand;
 import frc.robot.commands.ArmExtendCommandDANGER;
 import frc.robot.commands.ArmJoystickCommand;
+import frc.robot.commands.BackUp;
+import frc.robot.commands.BackUpUp;
 // import frc.robot.commands.ArmRetractCommand;
 import frc.robot.commands.DrivingCommand;
+import frc.robot.commands.ForwardUp;
 // import frc.robot.commands.EngaginCommand;
 // import frc.robot.commands.FailSafeAuto;
 import frc.robot.subsystems.AprilTagReader;
@@ -41,7 +46,7 @@ import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 // import edu.wpi.first.math.trajectory.TrajectoryUtil;
-import edu.wpi.first.math.util.Units;
+// import edu.wpi.first.math.util.Units;
 // import edu.wpi.first.wpilibj.DriverStation;
 // import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.XboxController;
@@ -49,11 +54,13 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
 // import edu.wpi.first.wpilibj2.command.ProfiledPIDCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 // import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
@@ -112,7 +119,11 @@ public class RobotContainer {
     //operatorController.rightTrigger().toggleOnTrue(new ArmExtendCommand(arm));
     //operatorController.leftTrigger().toggleOnTrue(new ArmRetractCommand(arm));
     operatorController.x().toggleOnTrue(new ArmExtendCommandDANGER(arm));
-    operatorController.b().toggleOnTrue(new ArmExtendCommand(arm));
+    operatorController.b().toggleOnTrue(new InstantCommand(() -> claw.plantSpike()));
+    //231000
+    operatorController.y().toggleOnTrue(new ArmCommandEpicerEpicer(claw, arm, -123, 0, () -> operatorController.y().getAsBoolean()));
+    operatorController.rightBumper().toggleOnTrue(new ArmCommandEpicerEpicer(claw, arm, -125, 0, () -> operatorController.rightBumper().getAsBoolean()));
+    operatorController.leftBumper().toggleOnTrue(new ArmCommandEpicerEpicer(claw, arm, -122, 0, () -> operatorController.leftBumper().getAsBoolean()));
     // operatorController.y().toggleOnTrue(new ArmCommandEpicer(arm, 0, Units.inchesToMeters(28.5), ()->operatorController.y().getAsBoolean()));
     
 
@@ -132,8 +143,14 @@ public class RobotContainer {
    * @throws IOException
    */
   public Command getAutonomousCommand() {
-
-    final String engagedAuto = "Engage in autonomous";
+    boolean isGoingToReturnOnFirstLineOfCodeDuringAutoToSelectASpecificRoutineLocatedBelow = true;
+    
+    if(isGoingToReturnOnFirstLineOfCodeDuringAutoToSelectASpecificRoutineLocatedBelow)
+      // return new BackUp(drivetrain);
+      // return new ForwardUp(drivetrain);
+      return new SequentialCommandGroup(new BackUpUp(drivetrain), new InstantCommand(() -> claw.solenoidToggle()), new ArmCommandEpicer(claw, arm, -70, 200000), new ArmCommandEpicer(claw, arm, -170, 200000),  new ForwardUp(drivetrain),new ArmCommandEpicer(claw, arm, -120, 160000), new InstantCommand(() -> claw.solenoidToggle()), new ParallelCommandGroup(new SequentialCommandGroup(new ArmCommandEpicer(claw, arm, -130, 0), new ArmCommandEpicer(claw, arm, -50, 0),  new InstantCommand(() -> claw.solenoidToggle()), new ArmCommandEpicer(claw, arm, 0, 0), new InstantCommand(() -> claw.solenoidToggle())), new BackUp(drivetrain)));
+    
+      final String engagedAuto = "Engage in autonomous";
     final String pathPlanner = "Path following auto";
 
     SendableChooser<String> m_chooser = new SendableChooser<>();
@@ -186,13 +203,13 @@ public class RobotContainer {
                                           new Pose2d(0.25, 0, new Rotation2d(0)),
                                           new Pose2d(0.5, 0, new Rotation2d(0)),
                                           new Pose2d(0.75, 0, new Rotation2d(0)),
-                                          new Pose2d(1, 0, new Rotation2d(0)),
-                                          new Pose2d(1.25, 0, new Rotation2d(0)),
-                                          new Pose2d(1.5, 0, new Rotation2d(0)),
-                                          new Pose2d(1.75, 0, new Rotation2d(0)),
-                                          new Pose2d(2, 0, new Rotation2d(0)),
-                                          new Pose2d(2.25, 0, new Rotation2d(0)),
-                                          new Pose2d(2.5, 0, new Rotation2d(0))),
+                                          new Pose2d(1, 0, new Rotation2d(0))),
+                                          // new Pose2d(1.25, 0, new Rotation2d(0)),
+                                          // new Pose2d(1.5, 0, new Rotation2d(0)),
+                                          // new Pose2d(1.75, 0, new Rotation2d(0)),
+                                          // new Pose2d(2, 0, new Rotation2d(0)),
+                                          // new Pose2d(2.25, 0, new Rotation2d(0)),
+                                          // new Pose2d(2.5, 0, new Rotation2d(0))),
                                          // new Pose2d(2.75, 0, new Rotation2d(0)),
                                          // new Pose2d(3, 0, new Rotation2d(0))),
                                           trajectoryConfig);

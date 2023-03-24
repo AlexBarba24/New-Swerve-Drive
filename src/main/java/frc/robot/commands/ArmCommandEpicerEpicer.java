@@ -12,22 +12,22 @@ import frc.robot.RobotContainer;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Claw;
 
-public class ArmCommandEpicer extends CommandBase {
+public class ArmCommandEpicerEpicer extends CommandBase {
   double angle;
   double length;
   boolean retracted;
-  boolean isDone;
+  BooleanSupplier isDone;
   Arm m_Arm;
   Claw m_Claw;
   /** Creates a new ArmCommand. */
-  public ArmCommandEpicer(Claw claw, Arm arm, double angle, double length) {
+  public ArmCommandEpicerEpicer(Claw claw, Arm arm, double angle, double length, BooleanSupplier isDoneDone) {
     // Use addRequirements() here to declare subsystem dependencies.
     this.angle = angle;
     this.length = length;
     m_Arm = arm;
     m_Claw = claw;
     retracted = true;
-    isDone = false;
+    isDone = isDoneDone;
     addRequirements(m_Arm, m_Claw);
   }
 
@@ -47,7 +47,7 @@ public class ArmCommandEpicer extends CommandBase {
     //     retracted = true;
     // }
     if(m_Arm.turnToPoint(angle))
-      isDone = m_Arm.motionMagicWinch(length);
+       m_Arm.motionMagicWinch(length);
   }
 
   // Called once the command ends or is interrupted.
@@ -60,6 +60,6 @@ public class ArmCommandEpicer extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return isDone;
+    return !isDone.getAsBoolean();
   }
 }

@@ -12,6 +12,7 @@ import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -35,7 +36,12 @@ public class Drivetrain extends SubsystemBase {
   StringBuilder _sb = new StringBuilder();
 
   public static AHRS Gyro = new AHRS(Port.kMXP);
+  public boolean shouldRamp = true;
   public static final double MAX_ROBOT_SPEED = Constants.OperatorConstants.maxSpeed;
+  public static SlewRateLimiter FLSlew = new SlewRateLimiter(1);
+  public static SlewRateLimiter FRSlew = new SlewRateLimiter(1);
+  public static SlewRateLimiter BLSlew = new SlewRateLimiter(1);
+  public static SlewRateLimiter BRSlew = new SlewRateLimiter(1);
   public static PIDController FLPID = new PIDController(Constants.OperatorConstants.FLPID[0], Constants.OperatorConstants.FLPID[1], Constants.OperatorConstants.FLPID[2]);
   public static PIDController FRPID = new PIDController(Constants.OperatorConstants.FRPID[0], Constants.OperatorConstants.FRPID[1], Constants.OperatorConstants.FRPID[2]);
   public static PIDController BLPID = new PIDController(Constants.OperatorConstants.BLPID[0], Constants.OperatorConstants.BLPID[1], Constants.OperatorConstants.BLPID[2]);
@@ -157,10 +163,10 @@ SwerveDriveOdometry odometry = new SwerveDriveOdometry(m_kinematics, getGyroPitc
       backLeft = SwerveModuleState.optimize(backLeft, getEncoderValue(BLEncoder));
       backRight = SwerveModuleState.optimize(backRight, getEncoderValue(BREncoder));
     }
-    setState(frontLeft, FLDriveMotor, FLSteerMotor, FLPID, FLEncoder, Constants.OperatorConstants.FLSPeedScale);
-    setState(frontRight, FRDriveMotor, FRSteerMotor, FRPID, FREncoder, Constants.OperatorConstants.FRSPeedScale);
-    setState(backLeft, BLDriveMotor, BLSteerMotor, BLPID, BLEncoder, Constants.OperatorConstants.BLSPeedScale);
-    setState(backRight, BRDriveMotor, BRSteerMotor, BRPID, BREncoder, Constants.OperatorConstants.BRSPeedScale);
+    setState(frontLeft, FLDriveMotor, FLSteerMotor, FLPID, FLEncoder, Constants.OperatorConstants.FLSPeedScale, FLSlew);
+    setState(frontRight, FRDriveMotor, FRSteerMotor, FRPID, FREncoder, Constants.OperatorConstants.FRSPeedScale, FRSlew);
+    setState(backLeft, BLDriveMotor, BLSteerMotor, BLPID, BLEncoder, Constants.OperatorConstants.BLSPeedScale, BLSlew);
+    setState(backRight, BRDriveMotor, BRSteerMotor, BRPID, BREncoder, Constants.OperatorConstants.BRSPeedScale, BRSlew);
     modulePositions = updateModulePos();
     odometry.update(getGyroPitch(), modulePositions);
     field.setRobotPose(odometry.getPoseMeters());
@@ -173,6 +179,8 @@ SwerveDriveOdometry odometry = new SwerveDriveOdometry(m_kinematics, getGyroPitc
 		_sb.append("\tspd:");
 		_sb.append(FLDriveMotor.getSelectedSensorVelocity(0));
 		_sb.append("u"); 	// Native units
+    _sb.append("\tpos:");
+    _sb.append(getDistanceTravelled(FLDriveMotor));
     Instrum.Process(FRDriveMotor, _sb);
     updateSmartDashboard();
   }
@@ -204,6 +212,26 @@ SwerveDriveOdometry odometry = new SwerveDriveOdometry(m_kinematics, getGyroPitc
   public double getDistanceTravelled(TalonFX motor){
     return (motor.getSelectedSensorPosition()/2048.0) * Constants.OperatorConstants.driveWheelRatio * (Math.PI * Units.inchesToMeters(4));
   }
+
+  public boolean driveBackwards(){
+    isZeroed = false;
+    shouldRamp = true;
+    speeds  = ChassisSpeeds.fromFieldRelativeSpeeds(-.75, 0, 0, getGyroYaw());
+    return getDistanceTravelled(FLDriveMotor) > 4.1;
+  }
+  public boolean driveForwardsPrecise(){
+    isZeroed = false;
+    shouldRamp = true;
+    speeds  = ChassisSpeeds.fromFieldRelativeSpeeds(.5, 0, 0, getGyroYaw());
+    return getDistanceTravelled(FLDriveMotor) < 0.05;
+  }
+  public boolean driveBackwardsPrecise(){
+    isZeroed = false;
+    shouldRamp = true;
+    speeds  = ChassisSpeeds.fromFieldRelativeSpeeds(-.5, 0, 0, getGyroYaw());
+    return getDistanceTravelled(FLDriveMotor) > 0.42;
+  }
+
   /**
    * Returns the currently-estimated pose of the robot.
    *
@@ -212,15 +240,16 @@ SwerveDriveOdometry odometry = new SwerveDriveOdometry(m_kinematics, getGyroPitc
   public Pose2d getPose() {
     return odometry.getPoseMeters();
   }
+
 /**Sets the wheels to new ModuleStates.
  * 
  * @param ModuleStates An array of four ModuelStates to set the wheels to.
  */
   public void setModuleStates(SwerveModuleState ModuleStates[]){
-    setState(ModuleStates[0], FLDriveMotor, FLSteerMotor, FLPID, FLEncoder, Constants.OperatorConstants.FLSPeedScale);
-    setState(ModuleStates[1], FRDriveMotor, FRSteerMotor, FRPID, FREncoder, Constants.OperatorConstants.FRSPeedScale);
-    setState(ModuleStates[2], BLDriveMotor, BLSteerMotor, BLPID, BLEncoder, Constants.OperatorConstants.BLSPeedScale);
-    setState(ModuleStates[3], BRDriveMotor, BRSteerMotor, BRPID, BREncoder, Constants.OperatorConstants.BRSPeedScale);
+    setState(ModuleStates[0], FLDriveMotor, FLSteerMotor, FLPID, FLEncoder, Constants.OperatorConstants.FLSPeedScale, FLSlew);
+    setState(ModuleStates[1], FRDriveMotor, FRSteerMotor, FRPID, FREncoder, Constants.OperatorConstants.FRSPeedScale, FRSlew);
+    setState(ModuleStates[2], BLDriveMotor, BLSteerMotor, BLPID, BLEncoder, Constants.OperatorConstants.BLSPeedScale, BLSlew);
+    setState(ModuleStates[3], BRDriveMotor, BRSteerMotor, BRPID, BREncoder, Constants.OperatorConstants.BRSPeedScale, BRSlew);
   }
   /** Field oriented driving with the joystick.
    * 
@@ -255,9 +284,13 @@ public Rotation2d getGyroYaw() {
  * @param encoder The steer encoder to read.
  * @param speedScale A value to offset wheel speeds.
  */
-  public void setState(SwerveModuleState state, TalonFX driveMotor, TalonSRX steerMotor, PIDController PID, Encoder encoder, double speedScale) {
+  public void setState(SwerveModuleState state, TalonFX driveMotor, TalonSRX steerMotor, PIDController PID, Encoder encoder, double speedScale, SlewRateLimiter slew) {
     steerMotor.set(ControlMode.PercentOutput, PID.calculate(getEncoderValue(encoder).getDegrees(), roundAngle(state.angle.getDegrees())));
-    driveMotor.set(ControlMode.PercentOutput, (state.speedMetersPerSecond/MAX_ROBOT_SPEED)*speedScale*3);
+    if(shouldRamp)
+      driveMotor.set(ControlMode.PercentOutput, slew.calculate((state.speedMetersPerSecond/MAX_ROBOT_SPEED)*speedScale*3));
+    else
+      driveMotor.set(ControlMode.PercentOutput, (state.speedMetersPerSecond/MAX_ROBOT_SPEED)*speedScale*3);
+
   }
   /**Updates the smart dashboard
    * 

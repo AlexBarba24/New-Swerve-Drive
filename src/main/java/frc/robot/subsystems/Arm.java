@@ -174,9 +174,11 @@ public class Arm extends SubsystemBase {
   }
   public boolean turnToPoint(double angle){
     armAngle = angle;
-    pivotMotor.set(ControlMode.PercentOutput, -armPID.calculate(getEncoderValue(), armAngle));
-    System.out.println(-armPID.calculate(getEncoderValue(), armAngle));
-    return (armAngle - 10 <  getEncoderValue() && armAngle + 10 > getEncoderValue());
+    pivotMotor.set(ControlMode.PercentOutput, armPID.calculate(getEncoderValue(), armAngle));
+    // System.out.println(armPID.calculate(getEncoderValue(), armAngle));
+    _sb.append("\ttrg:");
+    _sb.append(angle);
+    return (armAngle - 5 <  getEncoderValue() && armAngle + 5 > getEncoderValue());
   }
  
   public void extendArmManual(){
@@ -241,30 +243,32 @@ public class Arm extends SubsystemBase {
 
     // _sb.append("\tOut%:");
 		// _sb.append(pivotMotor.getMotorOutputPercent());
-		// _sb.append("\tVel:");
-		// _sb.append(pivotMotor.getSelectedSensorVelocity(0));
+		// // _sb.append("\tVel:");
+		// // _sb.append(pivotMotor.getSelectedSensorVelocity(0));
     // _sb.append("\tPosition:");
-    // _sb.append(pivotMotor.getSelectedSensorPosition());
+    // _sb.append(getEncoderValue());
 
-    // Instrum.Process(pivotMotor, _sb);
+    Instrum.Process(pivotMotor, _sb);
 
     updateSmartDashboard();
 
 
   }
 
-  public void motionMagicWinch(double targetPos){
+  public boolean motionMagicWinch(double targetPos){
 
     //MinPos = 0
-    //Max Pos = 33400
+    //Max Pos = 496000
 
     winchMotor.set(TalonFXControlMode.MotionMagic, targetPos);
 
+
+    return (winchMotor.getSelectedSensorPosition() > targetPos - 100 && winchMotor.getSelectedSensorPosition() < targetPos + 100);
     /* Append more signals to print when in speed mode */
-    _sb.append("\terr:");
-    _sb.append(winchMotor.getClosedLoopError(0));
-    _sb.append("\ttrg:");
-    _sb.append(targetPos);
+    // _sb.append("\terr:");
+    // _sb.append(winchMotor.getClosedLoopError(0));
+    // _sb.append("\ttrg:");
+    // _sb.append(targetPos);
   }
 
   public void resetEncoder(){
