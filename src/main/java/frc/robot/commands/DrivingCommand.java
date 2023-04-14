@@ -18,8 +18,8 @@ public class DrivingCommand extends CommandBase {
   DoubleSupplier myJoyX;
   DoubleSupplier myJoyY;
   DoubleSupplier myJoyX2;
-  // SlewRateLimiter xLimiter = new SlewRateLimiter(.5);
-//  SlewRateLimiter yLimiter = new SlewRateLimiter(.5);
+  SlewRateLimiter xLimiter = new SlewRateLimiter(4.833);
+  SlewRateLimiter yLimiter = new SlewRateLimiter(4.833);
   double slowMo = 1;
   double prevSpeedX = 0;
   double prevSpeedY = 0;
@@ -66,10 +66,10 @@ public class DrivingCommand extends CommandBase {
     // prevSpeedY = yJoyStickInputCurrentValueNegativeOneToOne;
     if(RobotContainer.driveController.getAButton()){
       myDrivetrain.shouldRamp = true;
-      slowMo = 1;
+      slowMo = 0.6;
     }
     if(RobotContainer.driveController.getYButton()){
-      myDrivetrain.shouldRamp = true;
+      myDrivetrain.shouldRamp = false;
       slowMo = 0.6;
     }
     if(RobotContainer.driveController.getBButton()){
@@ -85,9 +85,10 @@ public class DrivingCommand extends CommandBase {
       if(!(myJoyX2.getAsDouble() > -0.2 && myJoyX2.getAsDouble() < 0.2)){
         radSpeed = Constants.OperatorConstants.rotationSpeedScale * myJoyX2.getAsDouble() * Constants.OperatorConstants.driveSpeedScale * slowMo;
       }
-
-
-
+      if(!myDrivetrain.shouldRamp){
+       xSpeed = xLimiter.calculate(xSpeed);
+       ySpeed = yLimiter.calculate(ySpeed);
+      }
       myDrivetrain.driveWithMisery(ySpeed, xSpeed, radSpeed-autoAim);
 
 

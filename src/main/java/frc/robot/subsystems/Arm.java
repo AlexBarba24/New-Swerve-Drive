@@ -241,12 +241,12 @@ public class Arm extends SubsystemBase {
 		// pivotMotor.setSelectedSensorPosition(encoder.getDistance(), 0, 30);
 
 
-    // _sb.append("\tOut%:");
-		// _sb.append(pivotMotor.getMotorOutputPercent());
-		// // _sb.append("\tVel:");
-		// // _sb.append(pivotMotor.getSelectedSensorVelocity(0));
-    // _sb.append("\tPosition:");
-    // _sb.append(getEncoderValue());
+    _sb.append("\tOut%:");
+		_sb.append(pivotMotor.getMotorOutputPercent());
+		// _sb.append("\tVel:");
+		// _sb.append(pivotMotor.getSelectedSensorVelocity(0));
+    _sb.append("\tPosition:");
+    _sb.append(getEncoderValue());
 
     Instrum.Process(pivotMotor, _sb);
 

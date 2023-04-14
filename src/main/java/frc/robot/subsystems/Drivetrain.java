@@ -181,7 +181,7 @@ SwerveDriveOdometry odometry = new SwerveDriveOdometry(m_kinematics, getGyroPitc
 		_sb.append("u"); 	// Native units
     _sb.append("\tpos:");
     _sb.append(getDistanceTravelled(FLDriveMotor));
-    Instrum.Process(FRDriveMotor, _sb);
+    // Instrum.Process(FRDriveMotor, _sb);
     updateSmartDashboard();
   }
 /**Gets the encoder value.

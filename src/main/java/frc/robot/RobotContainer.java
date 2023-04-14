@@ -148,6 +148,7 @@ public class RobotContainer {
     if(isGoingToReturnOnFirstLineOfCodeDuringAutoToSelectASpecificRoutineLocatedBelow)
       // return new BackUp(drivetrain);
       // return new ForwardUp(drivetrain);
+      // return new BackUp(drivetrain);
       return new SequentialCommandGroup(new BackUpUp(drivetrain), new InstantCommand(() -> claw.solenoidToggle()), new ArmCommandEpicer(claw, arm, -70, 200000), new ArmCommandEpicer(claw, arm, -170, 200000),  new ForwardUp(drivetrain),new ArmCommandEpicer(claw, arm, -120, 160000), new InstantCommand(() -> claw.solenoidToggle()), new ParallelCommandGroup(new SequentialCommandGroup(new ArmCommandEpicer(claw, arm, -130, 0), new ArmCommandEpicer(claw, arm, -50, 0),  new InstantCommand(() -> claw.solenoidToggle()), new ArmCommandEpicer(claw, arm, 0, 0), new InstantCommand(() -> claw.solenoidToggle())), new BackUp(drivetrain)));
     
       final String engagedAuto = "Engage in autonomous";
