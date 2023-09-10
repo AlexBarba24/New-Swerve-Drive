@@ -23,9 +23,10 @@ import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.Drivetrain;
 
 import java.io.IOException;
+// import java.util.ArrayList;
 // import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.List;
+// import java.util.HashMap;
+// import java.util.List;
 // import java.util.function.Consumer;
 // import java.util.function.Supplier;
 
@@ -36,31 +37,31 @@ import com.pathplanner.lib.auto.PIDConstants;
 import com.pathplanner.lib.auto.SwerveAutoBuilder;
 
 // import edu.wpi.first.math.controller.HolonomicDriveController;
-import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.controller.ProfiledPIDController;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
+// import edu.wpi.first.math.controller.PIDController;
+// import edu.wpi.first.math.controller.ProfiledPIDController;
+// import edu.wpi.first.math.geometry.Pose2d;
+// import edu.wpi.first.math.geometry.Rotation2d;
 // import edu.wpi.first.math.geometry.Translation2d;
 // import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.math.trajectory.Trajectory;
-import edu.wpi.first.math.trajectory.TrajectoryConfig;
-import edu.wpi.first.math.trajectory.TrajectoryGenerator;
+// import edu.wpi.first.math.trajectory.Trajectory;
+// import edu.wpi.first.math.trajectory.TrajectoryConfig;
+// import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 // import edu.wpi.first.math.trajectory.TrajectoryUtil;
 // import edu.wpi.first.math.util.Units;
 // import edu.wpi.first.wpilibj.DriverStation;
 // import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+// import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
-import edu.wpi.first.wpilibj2.command.PrintCommand;
+// import edu.wpi.first.wpilibj2.command.PrintCommand;
 // import edu.wpi.first.wpilibj2.command.ProfiledPIDCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 // import edu.wpi.first.wpilibj2.command.Subsystem;
-import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
+// import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
+// import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
@@ -151,34 +152,64 @@ public class RobotContainer {
       // return new BackUp(drivetrain);
       return new SequentialCommandGroup(new BackUpUp(drivetrain), new InstantCommand(() -> claw.solenoidToggle()), new ArmCommandEpicer(claw, arm, -70, 200000), new ArmCommandEpicer(claw, arm, -170, 200000),  new ForwardUp(drivetrain),new ArmCommandEpicer(claw, arm, -120, 160000), new InstantCommand(() -> claw.solenoidToggle()), new ParallelCommandGroup(new SequentialCommandGroup(new ArmCommandEpicer(claw, arm, -130, 0), new ArmCommandEpicer(claw, arm, -50, 0),  new InstantCommand(() -> claw.solenoidToggle()), new ArmCommandEpicer(claw, arm, 0, 0), new InstantCommand(() -> claw.solenoidToggle())), new BackUp(drivetrain)));
     
-      final String engagedAuto = "Engage in autonomous";
-    final String pathPlanner = "Path following auto";
+    //BEGINNING OF NEW PATH FOLLOWING CODE
 
-    SendableChooser<String> m_chooser = new SendableChooser<>();
+    // This will load the file "FullAuto.path" and generate it with a max velocity of 4 m/s and a max acceleration of 3 m/s^2
+    // for every path in the group
+    PathPlannerTrajectory testAutoPath = PathPlanner.loadPath("TestAuto", new PathConstraints(4, 3));
 
-    SmartDashboard.putData("Auto Chooser", m_chooser);
-
-    m_chooser.addOption(engagedAuto, engagedAuto);
-    m_chooser.addOption(pathPlanner, pathPlanner);
-
-    PathPlannerTrajectory testPath = PathPlanner.loadPath("New Path", new PathConstraints(Constants.OperatorConstants.kMaxSpeerMetersPerSecond, Constants.OperatorConstants.kMaxAccelerationMetersPerSecondSquared), true);
-  
-    HashMap<String, Command> eventMap = new HashMap<>();
-    eventMap.put("marker1", new PrintCommand("Passed marker 1"));
-
-    drivetrain.resetOdometery(testPath.getInitialPose());
-    drivetrain.resetGyro();
+    //The event map can have a list of events in it, when you specify an event in pathplanner and give it a name, you add it to this event map, corresponding to a command and it will run that command when it reaches that point.
+    // Constants.OperatorConstants.eventMap.put("marker1", new PrintCommand("Passed marker 1"));
     SwerveAutoBuilder autoBuilder = new SwerveAutoBuilder(
       drivetrain::getPose, // Pose2d supplier
       drivetrain::resetOdometery, // Pose2d consumer, used to reset odometry at the beginning of auto
       drivetrain.m_kinematics, // SwerveDriveKinematics
-      new PIDConstants(Constants.OperatorConstants.kPXController, 0.0, 0.0), // PID constants to correct for translation error (used to create the X and Y PID controllers)
-      new PIDConstants(Constants.OperatorConstants.kPThetaController, 0.0, 0.0), // PID constants to correct for rotation error (used to create the rotation controller)
+      new PIDConstants(5.0, 0.0, 0.0), // PID constants to correct for translation error (used to create the X and Y PID controllers)
+      new PIDConstants(0.5, 0.0, 0.0), // PID constants to correct for rotation error (used to create the rotation controller)
       drivetrain::setModuleStates, // Module states consumer used to output to the drive subsystem
-      eventMap,
+      Constants.OperatorConstants.eventMap,
       true, // Should the path be automatically mirrored depending on alliance color. Optional, defaults to true
       drivetrain // The drive subsystem. Used to properly set the requirements of path following commands
-  );
+    );
+
+    Command fullAuto = new SequentialCommandGroup(
+      autoBuilder.followPathWithEvents(testAutoPath)
+      /*Additional paths can be chained together here, the robot will stop after each path, allowing you to insert additional commands*/
+      );
+    return fullAuto;
+    //END OF NEW PATH FOLOWING CODE
+
+
+
+
+  //     final String engagedAuto = "Engage in autonomous";
+  //   final String pathPlanner = "Path following auto";
+
+  //   SendableChooser<String> m_chooser = new SendableChooser<>();
+
+  //   SmartDashboard.putData("Auto Chooser", m_chooser);
+
+  //   m_chooser.addOption(engagedAuto, engagedAuto);
+  //   m_chooser.addOption(pathPlanner, pathPlanner);
+
+  //   PathPlannerTrajectory testPath = PathPlanner.loadPath("New Path", new PathConstraints(Constants.OperatorConstants.kMaxSpeerMetersPerSecond, Constants.OperatorConstants.kMaxAccelerationMetersPerSecondSquared), true);
+  
+  //   HashMap<String, Command> eventMap = new HashMap<>();
+  //   eventMap.put("marker1", new PrintCommand("Passed marker 1"));
+
+  //   drivetrain.resetOdometery(testPath.getInitialPose());
+  //   drivetrain.resetGyro();
+  //   SwerveAutoBuilder autoBuilder = new SwerveAutoBuilder(
+  //     drivetrain::getPose, // Pose2d supplier
+  //     drivetrain::resetOdometery, // Pose2d consumer, used to reset odometry at the beginning of auto
+  //     drivetrain.m_kinematics, // SwerveDriveKinematics
+  //     new PIDConstants(Constants.OperatorConstants.kPXController, 0.0, 0.0), // PID constants to correct for translation error (used to create the X and Y PID controllers)
+  //     new PIDConstants(Constants.OperatorConstants.kPThetaController, 0.0, 0.0), // PID constants to correct for rotation error (used to create the rotation controller)
+  //     drivetrain::setModuleStates, // Module states consumer used to output to the drive subsystem
+  //     eventMap,
+  //     true, // Should the path be automatically mirrored depending on alliance color. Optional, defaults to true
+  //     drivetrain // The drive subsystem. Used to properly set the requirements of path following commands
+  // );
 
     // 2. Generate trajectory
   //   String TrajectoryJSON = "paths/output/TestAuto.wpilib.json";
@@ -195,38 +226,38 @@ public class RobotContainer {
     //ProfiledPIDController thetaController = new ProfiledPIDController(Constants.OperatorConstants.kPThetaController, 0, 0, Constants.OperatorConstants.kThetaControllerConstraints);
   //   thetaController.enableContinuousInput(-Math.PI, Math.PI);
     
-     String trajectoryJSON = "paths/TestAuto.wpilib.json";
-     TrajectoryConfig trajectoryConfig = new TrajectoryConfig(Constants.OperatorConstants.kMaxSpeerMetersPerSecond, Constants.OperatorConstants.kMaxAccelerationMetersPerSecondSquared).setKinematics(drivetrain.m_kinematics);
-     // ADD NEW AUTO WAYPOINTS HERE
-     Trajectory trajectory = TrajectoryGenerator.generateTrajectory(List.of(
-                                        // TESTING AUTONOMOUS X WAYPOINTS
-                                          new Pose2d(0, 0, new Rotation2d(0)),
-                                          new Pose2d(0.25, 0, new Rotation2d(0)),
-                                          new Pose2d(0.5, 0, new Rotation2d(0)),
-                                          new Pose2d(0.75, 0, new Rotation2d(0)),
-                                          new Pose2d(1, 0, new Rotation2d(0))),
-                                          // new Pose2d(1.25, 0, new Rotation2d(0)),
-                                          // new Pose2d(1.5, 0, new Rotation2d(0)),
-                                          // new Pose2d(1.75, 0, new Rotation2d(0)),
-                                          // new Pose2d(2, 0, new Rotation2d(0)),
-                                          // new Pose2d(2.25, 0, new Rotation2d(0)),
-                                          // new Pose2d(2.5, 0, new Rotation2d(0))),
-                                         // new Pose2d(2.75, 0, new Rotation2d(0)),
-                                         // new Pose2d(3, 0, new Rotation2d(0))),
-                                          trajectoryConfig);
+  //    String trajectoryJSON = "paths/TestAuto.wpilib.json";
+  //    TrajectoryConfig trajectoryConfig = new TrajectoryConfig(Constants.OperatorConstants.kMaxSpeerMetersPerSecond, Constants.OperatorConstants.kMaxAccelerationMetersPerSecondSquared).setKinematics(drivetrain.m_kinematics);
+  //    // ADD NEW AUTO WAYPOINTS HERE
+  //    Trajectory trajectory = TrajectoryGenerator.generateTrajectory(List.of(
+  //                                       // TESTING AUTONOMOUS X WAYPOINTS
+  //                                         new Pose2d(0, 0, new Rotation2d(0)),
+  //                                         new Pose2d(0.25, 0, new Rotation2d(0)),
+  //                                         new Pose2d(0.5, 0, new Rotation2d(0)),
+  //                                         new Pose2d(0.75, 0, new Rotation2d(0)),
+  //                                         new Pose2d(1, 0, new Rotation2d(0))),
+  //                                         // new Pose2d(1.25, 0, new Rotation2d(0)),
+  //                                         // new Pose2d(1.5, 0, new Rotation2d(0)),
+  //                                         // new Pose2d(1.75, 0, new Rotation2d(0)),
+  //                                         // new Pose2d(2, 0, new Rotation2d(0)),
+  //                                         // new Pose2d(2.25, 0, new Rotation2d(0)),
+  //                                         // new Pose2d(2.5, 0, new Rotation2d(0))),
+  //                                        // new Pose2d(2.75, 0, new Rotation2d(0)),
+  //                                        // new Pose2d(3, 0, new Rotation2d(0))),
+  //                                         trajectoryConfig);
     
-        // try {      // } catch (IOException ex) {
-        //    DriverStation.reportError("Unable to open trajectory: " + trajectoryJSON, ex.getStackTrace());
-        // }
+  //       // try {      // } catch (IOException ex) {
+  //       //    DriverStation.reportError("Unable to open trajectory: " + trajectoryJSON, ex.getStackTrace());
+  //       // }
 
-     PIDController xController = new PIDController(Constants.OperatorConstants.kPXController, 0, 0);
-     PIDController yController = new PIDController(Constants.OperatorConstants.kPXController, 0, 0);
-     ProfiledPIDController thetaController = new ProfiledPIDController(Constants.OperatorConstants.kPThetaController, 0, 0, Constants.OperatorConstants.kThetaControllerConstraints);
-  //   // An example command will be run in autonomous
-    // Command autonomousCommand = new SwerveControllerCommand(trajectory, drivetrain::getPose, drivetrain.m_kinematics, xController, yController, thetaController, drivetrain::setModuleStates, drivetrain);
-     Command autoCommand = new SwerveControllerCommand(trajectory, drivetrain::getPose, drivetrain.m_kinematics, xController, yController, thetaController, drivetrain::setModuleStates, drivetrain);
+  //    PIDController xController = new PIDController(Constants.OperatorConstants.kPXController, 0, 0);
+  //    PIDController yController = new PIDController(Constants.OperatorConstants.kPXController, 0, 0);
+  //    ProfiledPIDController thetaController = new ProfiledPIDController(Constants.OperatorConstants.kPThetaController, 0, 0, Constants.OperatorConstants.kThetaControllerConstraints);
+  // //   // An example command will be run in autonomous
+  //   // Command autonomousCommand = new SwerveControllerCommand(trajectory, drivetrain::getPose, drivetrain.m_kinematics, xController, yController, thetaController, drivetrain::setModuleStates, drivetrain);
+  //    Command autoCommand = new SwerveControllerCommand(trajectory, drivetrain::getPose, drivetrain.m_kinematics, xController, yController, thetaController, drivetrain::setModuleStates, drivetrain);
      
-     return new SequentialCommandGroup(new InstantCommand(() -> drivetrain.resetOdometery(trajectory.getInitialPose())),autoCommand,new InstantCommand(() -> drivetrain.zeroMotors()));
+  //    return new SequentialCommandGroup(new InstantCommand(() -> drivetrain.resetOdometery(trajectory.getInitialPose())),autoCommand,new InstantCommand(() -> drivetrain.zeroMotors()));
      //switch (m_chooser.getSelected()) {
        //case pathPlanner:
         //return autoBuilder.fullAuto(testPath);

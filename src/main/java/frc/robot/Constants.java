@@ -4,9 +4,12 @@
 
 package frc.robot;
 
+import java.util.HashMap;
+
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj2.command.Command;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
@@ -63,7 +66,7 @@ public final class Constants {
         public static final double kMaxAccelerationMetersPerSecondSquared = 1;
         public static final double kMaxAngularSpeedRadPerSecond = (2*2*Math.PI);
         public static final double kMaxAngularAccelerationRadPerSecondSquared = 3;
-
+        public static final HashMap<String, Command> eventMap = new HashMap<>(); 
         public static final Constraints kThetaControllerConstraints = new TrapezoidProfile.Constraints(kMaxAngularSpeedRadPerSecond, kMaxAngularAccelerationRadPerSecondSquared);
 
   }
